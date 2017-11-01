@@ -1,0 +1,63 @@
+CREATE TABLE `cpu` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `host_name` varchar(100) NOT NULL,
+  `ip` varchar(100) NOT NULL,
+  `r_cpu` int(11) NOT NULL COMMENT '运行队列',
+  `b_cpu` int(11) NOT NULL COMMENT '阻塞的进程',
+  `in_cpu` int(11) NOT NULL COMMENT '每秒CPU的中断次数，包括时间中断',
+  `cs_cpu` int(11) NOT NULL COMMENT '每秒上下文切换次数',
+  `user_cpu` float(11,2) NOT NULL,
+  `nice_cpu` float(11,2) NOT NULL,
+  `system_cpu` float(11,2) NOT NULL,
+  `iowait_cpu` float(11,2) NOT NULL,
+  `steal_cpu` float(11,2) NOT NULL,
+  `idle_cpu` float(11,2) NOT NULL,
+  `usage_cpu` float(11,2) NOT NULL,
+  `load_avg` float(11,2) NOT NULL,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `mem` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `host_name` varchar(100) NOT NULL,
+  `ip` varchar(100) NOT NULL,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `mem_total` int(11) NOT NULL,
+  `mem_used` float(11,2) NOT NULL,
+  `mem_free` int(11) NOT NULL,
+  `swap_total` int(11) NOT NULL,
+  `swap_used` int(11) NOT NULL,
+  `swap_free` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `disk` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `host_name` varchar(100) NOT NULL,
+  `ip` varchar(20) NOT NULL,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `Device` varchar(20) NOT NULL,
+  `rrqm/s` int(11) NOT NULL, 
+  `r/s` int(11) NOT NULL,
+  `w/s` int(11) NOT NULL,
+  `rkB/s` int(11) NOT NULL,
+  `wkB/s` int(11) NOT NULL,
+  `avgrq-sz` int(11) NOT NULL,
+  `await` int(11) NOT NULL,
+  `r_await` int(11) NOT NULL,
+  `w_await` int(11) NOT NULL,
+  `svctm` int(11) NOT NULL,
+  `%util` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+insert into supervisory_platform.cpu(host_name,ip,r,b,in,cs,user_cpu,nice_cpu,system_cpu,iowait_cpu,steal_cpu,idle_cpu,usage_cpu,load_avg,create_time) 
+values ('123','123','123','123','123','123','123','123','123','123','123','123','123','123','123')
+
+INSERT INTOallin_platform`.`case_attachment` (`id`, 
+case_id,case_att_name,case_category_id`,case_att_type,case_att_size,case_att_format,case_att_spec,case_att_height,case_att_width,case_att_url,upload_time,sort_id,is_valid,dyna_height,dyna_width,send_site_id,qiniu_id,qiniu_status,is_qiniu,play_num,play_time,create_time) VALUES ('1', '1411653025882', '', '1', '1', '211376164864', '.png', '2', '0', '0', 'image/img04/case/2014/09/25/1411653025882_1411653034202.png', '2014-09-25 13:50:34', '0', '1', NULL, NULL, '1', NULL, '0', '0', '0', NULL, '2016-12-12 11:45:51');
