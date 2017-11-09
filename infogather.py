@@ -5,8 +5,10 @@ import os
 import socket,fcntl,struct
 import time
 import psutil
+import types
 
-last = None
+disk_last = None
+net_last = None
 
 class InfoGather():
 
@@ -24,6 +26,12 @@ class InfoGather():
         cpu_rb_res = [line.strip("\n").split() for line in cpu_rb_pipe][2]
         #print cpu_rb_res
         cpu_res = cpu_pipe.split()
+        if len(cpu_res[6]) != 3:
+            temp1 = cpu_res[6].split(",")
+            temp2 = cpu_res[:6]
+            temp3 = cpu_res[7:]
+            cpu_res = temp1 + temp2 + temp3
+            print temp1
         r_cpu = int(cpu_rb_res[0])
         b_cpu = int(cpu_rb_res[1])
         in_cpu = int(cpu_rb_res[-7])
@@ -58,11 +66,12 @@ class InfoGather():
         data = cpu_usage_data
         return data
 
+    # --------------------men--------------------
     def get_mem(self):
         mem_pipe = os.popen("free -m").readlines()
         mem_res = [line.strip("\n").split() for line in mem_pipe]
         mem = mem_res[1]
-        swap = mem_res[2]
+        swap = mem_res[-1]
         total_mem = int(mem[1])
         used_mem = int(mem[2])
         free_mem = int(mem[3])
@@ -83,7 +92,8 @@ class InfoGather():
         }
         data = mem_usage_data
         return data
-
+    # --------------------men end--------------------
+    #--------------------disk--------------------
     def tonum(self,n):
         if str(n).isdigit():
             return int(n)
@@ -134,16 +144,16 @@ class InfoGather():
 
 
     def get_disk_calc_result(self):
-        global last
+        global disk_last
         curr = self.dist_io_counters()
-        if not last:
-            last = curr
+        if not disk_last:
+            disk_last = curr
             return
 
         stat = {}
         for dev in curr.keys():
-            stat[dev] = self.disk_io_calc(last[dev],curr[dev])
-        last = curr
+            stat[dev] = self.disk_io_calc(disk_last[dev],curr[dev])
+        disk_last = curr
         return stat
 
     def get_disk(self):
@@ -158,17 +168,108 @@ class InfoGather():
         #print data
         return data
 
+    # --------------------disk end--------------------
+    #--------------------net--------------------
+    def net_io_pipe(self):
+        def netline_to_dict(line):
+            # print line[1:]
+            adapter_name, re_bytes, re_packets, re_errs, re_drop, re_fifo, re_frame, re_comperssed, re_multicast, tr_bytes, tr_packets, tr_errs, tr_drop, tr_fifo, tr_colls, tr_carrier, tr_compressed = line.split()
+            del line
+            d = {k: self.tonum(v) for k, v in locals().items()}
 
+            return d
+
+        net_io_pipe = file("/proc/net/dev").readlines()[2:]
+        net_io_info = [netline_to_dict(line) for line in net_io_pipe]
+        net_io_info = {name["adapter_name"]: name for name in net_io_info}
+
+        return net_io_info
+
+    def net_io_calc(self,last, curr):
+        def diff(field):
+            return curr[field] - last[field]
+
+        stat = {}
+        stat["re_bytes"] = diff("re_bytes")
+        stat["re_packets"] = diff("re_packets")
+        stat["re_errors"] = diff("re_errs")
+        stat["re_drops"] = diff("re_drop")
+        stat["tr_bytes"] = diff("tr_bytes")
+        stat["tr_packets"] = diff("tr_packets")
+        stat["tr_errors"] = diff("tr_errs")
+        stat["tr_drops"] = diff("tr_drop")
+
+        return stat
+
+    def get_net_calc_result(self):
+        global net_last
+
+        curr = self.net_io_pipe()
+        if not net_last:
+            net_last = curr
+            return
+
+        stat = {}
+        for name in curr.keys():
+            stat[name] = self.net_io_calc(net_last[name], curr[name])
+        net_last = curr
+        return stat
+
+    def get_net(self):
+        stat = self.get_net_calc_result()
+        if stat:
+            for dev in stat.keys():
+                stat[dev]["host_name"] = self.hostname
+                stat[dev]["ip"] = self.ip
+                stat[dev]["adapter_name"] = dev[:-1]
+                stat[dev]["create_time"] = self.get_time()
+        data = stat
+        #print data
+        return data
+
+    #--------------------net end--------------------
+    # --------------------jvm--------------------
+    def get_jvm_gc(self):
+        jvm_pipe = os.popen("ps -ef|grep java | grep -v grep").readlines()
+        jvm_res = [line.strip().split() for line in jvm_pipe]
+        jvm_infos = {}
+
+        def jvm_info_todict(line):
+            S0C,S1C,S0U,S1U,EC,EU,OC,OU,PC,PU,YGC,YGCT,FGC,FGCT,GCT = line.split()
+            del line
+            d = {k:self.tonum(v) for k,v in locals().items()}
+            return d
+
+        for i in jvm_res:
+            jvm_info = {}
+            for j in i:
+                if "Dcatalina.home" in j:
+                    jvm_info["name_path"] = j
+                    jvm_info["pid"] = i[1]
+                    jvm_gc_info = os.popen("jstat -gc " + i[1]).readlines()
+                    jvm_gc_info = jvm_info_todict(jvm_gc_info[1])
+                    jvm_gc_info.pop("self")
+                    gc_info = dict(jvm_info,**jvm_gc_info)
+                    gc_info["host_name"] = self.hostname
+                    gc_info["ip"] = self.ip
+                    gc_info["create_time"] = self.get_time()
+                    jvm_infos[i[1]] = gc_info
+        data = jvm_infos
+        return data
+
+    # --------------------jvm end--------------------
     def main(self):
         data = dict()
         data["cpu"] = self.get_cpu()
         data["mem"] = self.get_mem()
         return data
+
 if __name__ == '__main__':
     info = InfoGather()
     #info.get_disk()
     #a = info.main()
     #print a
     while True:
-        info.get_disk()
+        print info.get_disk()
+        print "456"
         time.sleep(1)
