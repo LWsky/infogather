@@ -21,27 +21,28 @@ class InfoGather():
         return time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 
     def get_cpu(self):
-        cpu_pipe = os.popen("top -bi -n 2 -d 0.02").readlines()[2]
-        cpu_rb_pipe = os.popen("vmstat").readlines()
-        cpu_rb_res = [line.strip("\n").split() for line in cpu_rb_pipe][2]
+
+        cpu_pipe = os.popen('top -bi -n 2 -d 0.02').read().split('\n\n\n')[0].split('top - ')[2].split('\n')[2]
+        cpu_rb_pipe = os.popen("vmstat 1 2").readlines()
+        #print cpu_rb_pipe
+        cpu_rb_res = [line.strip("\n").split() for line in cpu_rb_pipe][-1]
         #print cpu_rb_res
-        cpu_res = cpu_pipe.split()
-        if len(cpu_res[6]) != 3:
-            temp1 = cpu_res[6].split(",")
-            temp2 = cpu_res[:6]
-            temp3 = cpu_res[7:]
-            cpu_res = temp1 + temp2 + temp3
-            print temp1
+        cpu_res = cpu_pipe[8:].split()
+        if len(cpu_res[5]) != 3:
+            temp1 = cpu_res[5].split(",")
+            temp2 = cpu_res[:5]
+            temp3 = cpu_res[6:]
+            cpu_res = temp2 + temp1 + temp3
         r_cpu = int(cpu_rb_res[0])
         b_cpu = int(cpu_rb_res[1])
         in_cpu = int(cpu_rb_res[-7])
         cs_cpu = int(cpu_rb_res[-6])
-        user_cpu = float(cpu_res[1])
-        hi_cpu = float(cpu_res[11])
-        system_cpu = float(cpu_res[3])
-        wa_cpu = float(cpu_res[9])
-        si_cpu = float(cpu_res[13])
-        idle_cpu = float(cpu_res[7])
+        user_cpu = float(cpu_res[0])
+        hi_cpu = float(cpu_res[10])
+        system_cpu = float(cpu_res[2])
+        wa_cpu = float(cpu_res[8])
+        si_cpu = float(cpu_res[12])
+        idle_cpu = float(cpu_res[6])
         create_time = self.get_time()
         usage_cpu = float(100.0 - idle_cpu)
         load_avg = float(os.getloadavg()[0])
@@ -270,6 +271,6 @@ if __name__ == '__main__':
     #a = info.main()
     #print a
     while True:
-        print info.get_disk()
+        print info.get_cpu()
         print "456"
         time.sleep(1)
