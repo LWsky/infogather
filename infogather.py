@@ -25,7 +25,6 @@ class InfoGather():
                        {'host': '10.46.185.48', 'port': 7004},
                        {'host': '10.46.185.48', 'port': 7005},
                        {'host': '10.46.185.48', 'port': 7006},
-                       {'host': '10.46.185.48', 'port': 6385}
                        ]
         try:
             self.redisconn = rediscluster.StrictRedisCluster(startup_nodes=redis_nodes,password='jHxG2b9sQiJ3VsoJ')
