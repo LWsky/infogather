@@ -6,6 +6,7 @@ import mysql.connector
 import infogather
 import time
 import threading
+import initInformation
 
 
 class DB():
@@ -15,6 +16,7 @@ class DB():
 
     def connect_mysql(self):
         try:
+            '''
             config = {'user': 'root',
                       'password': 'A2017in!!',
                       'host': '10.1.9.199',
@@ -27,7 +29,7 @@ class DB():
                       'host': '10.44.174.118',
                       'port': '4417',
                       'database': 'supervisory_platform',
-                      'charset': 'utf8'}'''
+                      'charset': 'utf8'}
             conn = mysql.connector.connect(**config)
             return conn
         except mysql.connector.Error as e:
@@ -55,8 +57,8 @@ class DB():
     def insert_men(self,interval=2):
         #cursor = self.conn.cursor()
         while True:
-            mem_sql = "INSERT INTO mem(host_name,ip,create_time,mem_total,mem_used,mem_free,swap_total,swap_used,swap_free) " \
-                      "VALUES (%(host_name)s,%(ip)s,%(create_time)s,%(mem_total)s,%(mem_used)s,%(mem_free)s,%(swap_total)s,%(swap_used)s,%(swap_free)s)"
+            mem_sql = "INSERT INTO mem(host_name,ip,create_time,mem_total,mem_used,mem_free,mem_buffcache,swap_total,swap_used,swap_free) " \
+                      "VALUES (%(host_name)s,%(ip)s,%(create_time)s,%(mem_total)s,%(mem_used)s,%(mem_free)s,%(mem_buffcache)s,%(swap_total)s,%(swap_used)s,%(swap_free)s)"
             conn = self.connect_mysql()
             cursor = conn.cursor()
             try:
@@ -132,13 +134,34 @@ class DB():
                     conn.close()
             time.sleep(interval)
 
+    def insert_redis_info(self, interval=2):
+        while True:
+            redis_info_sql = "INSERT INTO redis (host_name, ip, used_memory, mem_fragmentation_ratio, total_commands_processed, used_cpu_sys, used_cpu_user, blocked_clients, connected_clients, instantaneous_ops_per_sec, create_time) " \
+                             "VALUES (%(host_name)s, %(ip)s, %(used_memory)s, %(mem_fragmentation_ratio)s, %(total_commands_processed)s, %(used_cpu_sys)s, %(used_cpu_user)s, %(blocked_clients)s, %(connected_clients)s, %(instantaneous_ops_per_sec)s, %(create_time)s)"
+            conn = self.connect_mysql()
+            cursor = conn.cursor()
+            data = self.info.get_redis_info()
+            if data:
+                try:
+                    for node in data.keys():
+                        cursor.execute(redis_info_sql, data[node])
+                    conn.commit()
+                except mysql.connector.Error as e:
+                    print "insert_jvm_gc commit fails!{}".format(e)
+                finally:
+                    cursor.close()
+                    conn.close()
+            time.sleep(interval)
+
     def all_func(self):
         all_data = dict()
         for func in inspect.getmembers(self,predicate=inspect.ismethod):
             if func[0][:6] == 'insert':
                 all_data[func[0]] = func[1]
+        services_status = initInformation.check_services()
+        if services_status['redis'] == 0:
+            all_data.pop('insert_redis_info')
         all_func_data = all_data
-
         return all_func_data
 
 

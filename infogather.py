@@ -6,6 +6,8 @@ import socket,fcntl,struct
 import time
 import psutil
 import types
+import rediscluster
+import sys
 
 disk_last = None
 net_last = None
@@ -16,6 +18,20 @@ class InfoGather():
         self.hostname = socket.gethostname()
         #print self.hostname
         self.ip = socket.gethostbyname(self.hostname)
+    def redis_cluster(self):
+        redis_nodes = [{'host': '10.46.185.48', 'port': 7001},
+                       {'host': '10.46.185.48', 'port': 7002},
+                       {'host': '10.46.185.48', 'port': 7003},
+                       {'host': '10.46.185.48', 'port': 7004},
+                       {'host': '10.46.185.48', 'port': 7005},
+                       {'host': '10.46.185.48', 'port': 7006},
+                       {'host': '10.46.185.48', 'port': 6385}
+                       ]
+        try:
+            self.redisconn = rediscluster.StrictRedisCluster(startup_nodes=redis_nodes,password='jHxG2b9sQiJ3VsoJ')
+        except Exception as e:
+            print 'redis连接失败，原因', format(e)
+            sys.exit(1)
 
     def get_time(self):
         return time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
@@ -80,6 +96,10 @@ class InfoGather():
         used_swap = int(swap[2])
         free_swap = int(swap[3])
         create_time = self.get_time()
+        if len(mem) > 5:
+            mem_buffcache = int(mem[5])
+        else:
+            mem_buffcache = int(0)
         mem_usage_data = {
             'host_name': self.hostname,
             'ip': self.ip,
@@ -87,6 +107,7 @@ class InfoGather():
             'mem_total':total_mem,
             'mem_used':used_mem,
             'mem_free':free_mem,
+            'mem_buffcache':mem_buffcache,
             'swap_total':total_swap,
             'swap_used':used_swap,
             'swap_free':free_swap
@@ -259,6 +280,28 @@ class InfoGather():
         return data
 
     # --------------------jvm end--------------------
+    # --------------------redis--------------------
+    def get_redis_info(self):
+        redis_info = self.redisconn.info()
+        info = {}
+        redis_infos = {}
+        for key in redis_info:
+            info['used_memory'] = redis_info[key]['used_memory']
+            info['mem_fragmentation_ratio'] = redis_info[key]['mem_fragmentation_ratio']  # 内存碎片率.内存碎片率超过了1.5，那可能是操作系统或Redis实例中内存管理变差的表现
+            info['total_commands_processed'] = redis_info[key]['total_commands_processed']  # Redis服务处理命令的总数
+            info['used_cpu_sys'] = redis_info[key]['used_cpu_sys']  # redis server的sys cpu使用率
+            info['used_cpu_user'] = redis_info[key]['used_cpu_user']  # redis server的user cpu使用率
+            info['blocked_clients'] = redis_info[key]['blocked_clients']  # 被阻塞的客户端数
+            info['connected_clients'] = redis_info[key]['connected_clients']  # 连接的客户端数
+            info['instantaneous_ops_per_sec'] = redis_info[key]['instantaneous_ops_per_sec']  # 每秒执行的命令个数
+            info["host_name"] = self.hostname
+            info["ip"] = self.ip
+            info["create_time"] = self.get_time()
+            redis_infos[key] = info
+        data = redis_infos
+        return data
+    # --------------------redis end--------------------
+
     def main(self):
         data = dict()
         data["cpu"] = self.get_cpu()

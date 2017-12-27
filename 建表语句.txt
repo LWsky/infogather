@@ -7,10 +7,10 @@ CREATE TABLE `cpu` (
   `in_cpu` int(11) NOT NULL COMMENT '每秒CPU的中断次数，包括时间中断',
   `cs_cpu` int(11) NOT NULL COMMENT '每秒上下文切换次数',
   `user_cpu` float(11,2) NOT NULL,
-  `nice_cpu` float(11,2) NOT NULL,
+  `hi_cpu` float(11,2) NOT NULL,
+  `si_cpu` float(11,2) NOT NULL,
   `system_cpu` float(11,2) NOT NULL,
-  `iowait_cpu` float(11,2) NOT NULL,
-  `steal_cpu` float(11,2) NOT NULL,
+  `wa_cpu` float(11,2) NOT NULL,
   `idle_cpu` float(11,2) NOT NULL,
   `usage_cpu` float(11,2) NOT NULL,
   `load_avg` float(11,2) NOT NULL,
@@ -40,26 +40,87 @@ CREATE TABLE `disk` (
   `ip` varchar(20) NOT NULL,
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `Device` varchar(20) NOT NULL,
-  `rrqm/s` int(11) NOT NULL, 
-  `r/s` int(11) NOT NULL,
-  `w/s` int(11) NOT NULL,
-  `rkB/s` int(11) NOT NULL,
-  `wkB/s` int(11) NOT NULL,
-  `avgrq-sz` int(11) NOT NULL,
-  `await` int(11) NOT NULL,
-  `r_await` int(11) NOT NULL,
-  `w_await` int(11) NOT NULL,
-  `svctm` int(11) NOT NULL,
-  `%util` int(11) NOT NULL,
+  `rrqm_s` float(20,2) NOT NULL COMMENT '每秒进行 merge 的读操作数目',
+  `wrqm_s` float(20,2) NOT NULL COMMENT '每秒进行 merge 的写操作数目',
+  `r_s` float(20,2) NOT NULL COMMENT ' 每秒完成的读 I/O 设备次数',
+  `w_s` float(20,2) NOT NULL COMMENT '每秒完成的写 I/O 设备次数',
+  `rkB_s` float(20,2) NOT NULL COMMENT '每秒读K字节数。是 rsect/s 的一半，因为每扇区大小为512字节',
+  `wkB_s` float(20,2) NOT NULL COMMENT '每秒写K字节数。是 wsect/s 的一半',
+  `avgrq_sz` float(20,2) NOT NULL COMMENT '平均每次设备I/O操作的数据大小 (扇区)。delta(rsect+wsect)/delta(rio+wio)',
+  `avgqu_sz` float(20,2) NOT NULL COMMENT '平均I/O队列长度。即 delta(aveq)/s/1000 (因为aveq的单位为毫秒)',
+  `await` float(20,2) NOT NULL COMMENT '平均每次设备I/O操作的等待时间 (毫秒)。即 delta(ruse+wuse)/delta(rio+wio)',
+  `svctm` float(20,2) NOT NULL COMMENT '平均每次设备I/O操作的服务时间 (毫秒)。即 delta(use)/delta(rio+wio)',
+  `util` float(20,2) NOT NULL COMMENT '一秒中有百分之多少的时间用于 I/O 操作，或者说一秒中有多少时间 I/O 队列是非空的',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `net` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `host_name` varchar(100) NOT NULL,
+  `ip` varchar(100) NOT NULL,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `adapter_name` varchar(50) NOT NULL,
+  `re_bytes` int(11) NOT NULL,
+  `re_packets` int(11) NOT NULL,
+  `re_errors` int(11) NOT NULL,
+  `re_drops` int(11) NOT NULL,
+  `tr_bytes` int(11) NOT NULL,
+  `tr_packets` int(11) NOT NULL,
+  `tr_errors` int(11) NOT NULL,
+  `tr_drops` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `jvm_gc` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `host_name` varchar(100) NOT NULL,
+  `ip` varchar(100) NOT NULL,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `PID` int(11) NOT NULL,
+  `name_path` varchar(50) NOT NULL,
+  `S0C` int(11) NOT NULL,
+  `S1C` int(11) NOT NULL,
+  `S0U` int(11) NOT NULL,
+  `S1U` int(11) NOT NULL,
+  `EC` int(11) NOT NULL,
+  `EU` int(11) NOT NULL,
+  `OC` int(11) NOT NULL,
+  `OU` int(11) NOT NULL,
+  `PC` int(11) NOT NULL,
+  `PU` int(11) NOT NULL,
+  `YGC` int(11) NOT NULL,
+  `YGCT` int(11) NOT NULL,
+  `FGC` int(11) NOT NULL,
+  `FGCT` int(11) NOT NULL,
+  `GCT` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `redis`;
+CREATE TABLE `redis` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `host_name` varchar(100) NOT NULL,
+  `ip` varchar(100) NOT NULL,
+  `used_memory` int(11) NOT NULL,
+  `mem_fragmentation_ratio` float(11,2) NOT NULL COMMENT '内存碎片率.内存碎片率超过了1.5，那可能是操作系统或Redis实例中内存管理变差的表现',
+  `total_commands_processed` int(11) NOT NULL COMMENT 'Redis服务处理命令的总数',
+  `used_cpu_sys` float(11,2) NOT NULL,
+  `used_cpu_user` float(11,2) NOT NULL,
+  `blocked_clients` int(11) NOT NULL COMMENT '被阻塞的客户端数',
+  `connected_clients` int(11) NOT NULL COMMENT '连接的客户端数',
+  `instantaneous_ops_per_sec` int(11) NOT NULL COMMENT '每秒执行的命令个数',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 insert into supervisory_platform.cpu(host_name,ip,r,b,in,cs,user_cpu,nice_cpu,system_cpu,iowait_cpu,steal_cpu,idle_cpu,usage_cpu,load_avg,create_time) 
 values ('123','123','123','123','123','123','123','123','123','123','123','123','123','123','123')
 
-INSERT INTOallin_platform`.`case_attachment` (`id`, 
+INSERT INTO allin_platform`.`case_attachment` (`id`, 
 case_id,case_att_name,case_category_id`,case_att_type,case_att_size,case_att_format,case_att_spec,case_att_height,case_att_width,case_att_url,upload_time,sort_id,is_valid,dyna_height,dyna_width,send_site_id,qiniu_id,qiniu_status,is_qiniu,play_num,play_time,create_time) VALUES ('1', '1411653025882', '', '1', '1', '211376164864', '.png', '2', '0', '0', 'image/img04/case/2014/09/25/1411653025882_1411653034202.png', '2014-09-25 13:50:34', '0', '1', NULL, NULL, '1', NULL, '0', '0', '0', NULL, '2016-12-12 11:45:51');
 
-INSERT INTO supervisory_platform.disk (id, host_name, ip, create_time, Device, rrqm/s, r/s, w/s, rkB/s, wkB/s, avgrq-sz, await, r_await, w_await, svctm, %util) VALUES ('1', '1', '1', '2017-10-26 17:40:47', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO supervisory_platform.disk (id, host_name, ip, create_time, Device, rrqm/s, r/s, w/s, rkB/s, wkB/s, avgrq-sz, await, r_await, w_await, svctm, %util) 
+VALUES ('1', '1', '1', '2017-10-26 17:40:47', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1');
+
+INSERT INTO jvm_gc (id, host_name, ip, create_time, PID, name_path, S0C, S1C, S0U, S1U, EC, EU, OC, OU, PC, PU, YGC, YGCT, FGC, FGCT, GCT) 
+VALUES (NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
