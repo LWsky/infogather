@@ -160,7 +160,7 @@ class DB():
                 all_data[func[0]] = func[1]
         services_status = initInformation.check_services()
         if services_status['redis'] == 0:
-            all_data.pop('insert_redis_info')
+            del all_data['insert_redis_info']
         all_func_data = all_data
         return all_func_data
 
