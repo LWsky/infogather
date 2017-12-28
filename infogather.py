@@ -24,20 +24,21 @@ class InfoGather():
                        {'host': '10.46.185.48', 'port': 7003},
                        {'host': '10.46.185.48', 'port': 7004},
                        {'host': '10.46.185.48', 'port': 7005},
-                       {'host': '10.46.185.48', 'port': 7006},
+                       {'host': '10.46.185.48', 'port': 7006}
                        ]
         try:
-            self.redisconn = rediscluster.StrictRedisCluster(startup_nodes=redis_nodes,password='jHxG2b9sQiJ3VsoJ')
+            redisconn = rediscluster.StrictRedisCluster(startup_nodes=redis_nodes,password='jHxG2b9sQiJ3VsoJ')
         except Exception as e:
             print 'redis连接失败，原因', format(e)
             sys.exit(1)
+        return redisconn
 
     def get_time(self):
         return time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 
     def get_cpu(self):
 
-        cpu_pipe = os.popen('top -bi -n 2 -d 0.02').read().split('\n\n\n')[0].split('top - ')[2].split('\n')[2]
+        cpu_pipe = os.popen('top -bi -n 2 -d 3').read().split('\n\n\n')[0].split('top - ')[2].split('\n')[2]
         cpu_rb_pipe = os.popen("vmstat 1 2").readlines()
         #print cpu_rb_pipe
         cpu_rb_res = [line.strip("\n").split() for line in cpu_rb_pipe][-1]
@@ -275,16 +276,29 @@ class InfoGather():
                     gc_info["ip"] = self.ip
                     gc_info["create_time"] = self.get_time()
                     jvm_infos[i[1]] = gc_info
+                if "platform.jar" in j:
+                    jvm_info["name_path"] = i[-1]
+                    jvm_info["pid"] = i[1]
+                    jvm_gc_info = os.popen("jstat -gc " + i[1]).readlines()
+                    jvm_gc_info = jvm_info_todict(jvm_gc_info[1])
+                    jvm_gc_info.pop("self")
+                    gc_info = dict(jvm_info, **jvm_gc_info)
+                    gc_info["host_name"] = self.hostname
+                    gc_info["ip"] = self.ip
+                    gc_info["create_time"] = self.get_time()
+                    jvm_infos[i[1]] = gc_info
         data = jvm_infos
         return data
 
     # --------------------jvm end--------------------
     # --------------------redis--------------------
     def get_redis_info(self):
-        redis_info = self.redisconn.info()
-        info = {}
+        redisconn = self.redis_cluster()
+        redis_info = redisconn.info()
         redis_infos = {}
-        for key in redis_info:
+        for key in redis_info.keys():
+            info = {}
+            info['node'] = key
             info['used_memory'] = redis_info[key]['used_memory']
             info['mem_fragmentation_ratio'] = redis_info[key]['mem_fragmentation_ratio']  # 内存碎片率.内存碎片率超过了1.5，那可能是操作系统或Redis实例中内存管理变差的表现
             info['total_commands_processed'] = redis_info[key]['total_commands_processed']  # Redis服务处理命令的总数

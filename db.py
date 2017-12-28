@@ -136,8 +136,8 @@ class DB():
 
     def insert_redis_info(self, interval=2):
         while True:
-            redis_info_sql = "INSERT INTO redis (host_name, ip, used_memory, mem_fragmentation_ratio, total_commands_processed, used_cpu_sys, used_cpu_user, blocked_clients, connected_clients, instantaneous_ops_per_sec, create_time) " \
-                             "VALUES (%(host_name)s, %(ip)s, %(used_memory)s, %(mem_fragmentation_ratio)s, %(total_commands_processed)s, %(used_cpu_sys)s, %(used_cpu_user)s, %(blocked_clients)s, %(connected_clients)s, %(instantaneous_ops_per_sec)s, %(create_time)s)"
+            redis_info_sql = "INSERT INTO redis (host_name, ip, node, used_memory, mem_fragmentation_ratio, total_commands_processed, used_cpu_sys, used_cpu_user, blocked_clients, connected_clients, instantaneous_ops_per_sec, create_time) " \
+                         "VALUES (%(host_name)s, %(ip)s, %(node)s, %(used_memory)s, %(mem_fragmentation_ratio)s, %(total_commands_processed)s, %(used_cpu_sys)s, %(used_cpu_user)s, %(blocked_clients)s, %(connected_clients)s, %(instantaneous_ops_per_sec)s, %(create_time)s)"
             conn = self.connect_mysql()
             cursor = conn.cursor()
             data = self.info.get_redis_info()
