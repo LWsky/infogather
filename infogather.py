@@ -298,7 +298,7 @@ class InfoGather():
         redis_infos = {}
         for key in redis_info.keys():
             info = {}
-            info['node'] = key
+            info['node'] = key.split(":")[1]
             info['used_memory'] = redis_info[key]['used_memory']
             info['mem_fragmentation_ratio'] = redis_info[key]['mem_fragmentation_ratio']  # 内存碎片率.内存碎片率超过了1.5，那可能是操作系统或Redis实例中内存管理变差的表现
             info['total_commands_processed'] = redis_info[key]['total_commands_processed']  # Redis服务处理命令的总数
