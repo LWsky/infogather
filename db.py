@@ -136,8 +136,8 @@ class DB():
 
     def insert_redis_info(self, interval=2):
         while True:
-            redis_info_sql = "INSERT INTO redis (host_name, ip, node, used_memory, mem_fragmentation_ratio, total_commands_processed, used_cpu_sys, used_cpu_user, blocked_clients, connected_clients, instantaneous_ops_per_sec, create_time) " \
-                         "VALUES (%(host_name)s, %(ip)s, %(node)s, %(used_memory)s, %(mem_fragmentation_ratio)s, %(total_commands_processed)s, %(used_cpu_sys)s, %(used_cpu_user)s, %(blocked_clients)s, %(connected_clients)s, %(instantaneous_ops_per_sec)s, %(create_time)s)"
+            redis_info_sql = "INSERT INTO redis (host_name, ip, node, used_memory, keys_num, keyspace_hits, keyspace_misses, mem_fragmentation_ratio, total_commands_processed, used_cpu_sys, used_cpu_user, blocked_clients, connected_clients, instantaneous_ops_per_sec, create_time) " \
+                         "VALUES (%(host_name)s, %(ip)s, %(node)s, %(used_memory)s, %(keys_num)s, %(keyspace_hits)s, %(keyspace_misses)s, %(mem_fragmentation_ratio)s, %(total_commands_processed)s, %(used_cpu_sys)s, %(used_cpu_user)s, %(blocked_clients)s, %(connected_clients)s, %(instantaneous_ops_per_sec)s, %(create_time)s)"
             conn = self.connect_mysql()
             cursor = conn.cursor()
             data = self.info.get_redis_info()
@@ -161,6 +161,8 @@ class DB():
         services_status = initInformation.check_services()
         if services_status['redis'] == 0:
             del all_data['insert_redis_info']
+        if services_status['java'] == 0:
+            del all_data['insert_jvm_gc']
         all_func_data = all_data
         return all_func_data
 
