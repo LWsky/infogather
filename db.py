@@ -147,7 +147,7 @@ class DB():
                         cursor.execute(redis_info_sql, data[node])
                     conn.commit()
                 except mysql.connector.Error as e:
-                    print "insert_jvm_gc commit fails!{}".format(e)
+                    print "insert_redis_info commit fails!{}".format(e)
                 finally:
                     cursor.close()
                     conn.close()

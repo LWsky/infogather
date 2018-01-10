@@ -9,9 +9,12 @@ import types
 import rediscluster
 import sys
 import re
+from initInformation import *
 
 disk_last = None
 net_last = None
+jdk_v = check_jkd_version()
+print jdk_v
 
 class InfoGather():
 
@@ -256,9 +259,11 @@ class InfoGather():
         jvm_pipe = os.popen("ps -ef|grep java | grep -v grep").readlines()
         jvm_res = [line.strip().split() for line in jvm_pipe]
         jvm_infos = {}
-
         def jvm_info_todict(line):
-            S0C,S1C,S0U,S1U,EC,EU,OC,OU,PC,PU,YGC,YGCT,FGC,FGCT,GCT = line.split()
+            if jdk_v != 1:
+                S0C, S1C, S0U, S1U, EC, EU, OC, OU, PC, PU, YGC, YGCT, FGC, FGCT, GCT = line.split()
+            else:
+                S0C, S1C, S0U, S1U, EC, EU, OC, OU, MC, MU, PC, PU, YGC, YGCT, FGC, FGCT, GCT = line.split()
             del line
             d = {k:self.tonum(v) for k,v in locals().items()}
             return d
@@ -312,7 +317,7 @@ class InfoGather():
             db_values = []
             for db in db_names:
                 db_values.append(db+':'+redis_info[key][db]['keys'])
-            info['keys_num'] = db_values
+            info['keys_num'] = ''.join(db_values)
             info['keyspace_hits'] = redis_info[key]['keyspace_hits']    #key命中数
             info['keyspace_misses'] = redis_info[key]['keyspace_misses']    #key miss数
             info['blocked_clients'] = redis_info[key]['blocked_clients']  # 被阻塞的客户端数
@@ -337,7 +342,10 @@ if __name__ == '__main__':
     #info.get_disk()
     #a = info.main()
     #print a
+    info.get_jvm_gc()
+'''
     while True:
         print info.get_cpu()
         print "456"
         time.sleep(1)
+        '''
