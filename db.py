@@ -6,7 +6,8 @@ import mysql.connector
 import infogather
 import time
 import threading
-import initInformation
+from initInformation import *
+
 
 
 class DB():
@@ -116,12 +117,14 @@ class DB():
 
     def insert_jvm_gc(self,interval=2):
         #cursor = self.conn.cursor()
+        v = check_jkd_version()
+        print v
         while True:
             jvm_gc_sql = "INSERT INTO jvm_gc (host_name, ip, create_time, PID, name_path, S0C, S1C, S0U, S1U, EC, EU, OC, OU, PC, PU, YGC, YGCT, FGC, FGCT, GCT) " \
                          "VALUES (%(host_name)s, %(ip)s, %(create_time)s, %(pid)s, %(name_path)s, %(S0C)s, %(S1C)s, %(S0U)s, %(S1U)s, %(EC)s, %(EU)s, %(OC)s, %(OU)s, %(PC)s, %(PU)s, %(YGC)s, %(YGCT)s, %(FGC)s, %(FGCT)s, %(GCT)s)"
             conn = self.connect_mysql()
             cursor = conn.cursor()
-            data = self.info.get_jvm_gc()
+            data = self.info.get_jvm_gc(v)
             if data:
                 try:
                     for pid in data.keys():
@@ -158,7 +161,7 @@ class DB():
         for func in inspect.getmembers(self,predicate=inspect.ismethod):
             if func[0][:6] == 'insert':
                 all_data[func[0]] = func[1]
-        services_status = initInformation.check_services()
+        services_status = check_services()
         if services_status['redis'] == 0:
             del all_data['insert_redis_info']
         if services_status['java'] == 0:

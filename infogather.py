@@ -9,12 +9,10 @@ import types
 import rediscluster
 import sys
 import re
-from initInformation import *
+
 
 disk_last = None
 net_last = None
-jdk_v = check_jkd_version()
-print jdk_v
 
 class InfoGather():
 
@@ -255,12 +253,12 @@ class InfoGather():
 
     #--------------------net end--------------------
     # --------------------jvm--------------------
-    def get_jvm_gc(self):
+    def get_jvm_gc(self,version):
         jvm_pipe = os.popen("ps -ef|grep java | grep -v grep").readlines()
         jvm_res = [line.strip().split() for line in jvm_pipe]
         jvm_infos = {}
         def jvm_info_todict(line):
-            if jdk_v != 1:
+            if version != 1:
                 S0C, S1C, S0U, S1U, EC, EU, OC, OU, PC, PU, YGC, YGCT, FGC, FGCT, GCT = line.split()
             else:
                 S0C, S1C, S0U, S1U, EC, EU, OC, OU, MC, MU, PC, PU, YGC, YGCT, FGC, FGCT, GCT = line.split()
@@ -316,7 +314,7 @@ class InfoGather():
             info['used_cpu_user'] = redis_info[key]['used_cpu_user']  # redis server的user cpu使用率
             db_values = []
             for db in db_names:
-                db_values.append(db+':'+redis_info[key][db]['keys'])
+                db_values.append(db+':'+str(redis_info[key][db]['keys']))
             info['keys_num'] = ''.join(db_values)
             info['keyspace_hits'] = redis_info[key]['keyspace_hits']    #key命中数
             info['keyspace_misses'] = redis_info[key]['keyspace_misses']    #key miss数
