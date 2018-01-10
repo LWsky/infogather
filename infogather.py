@@ -290,6 +290,9 @@ class InfoGather():
                     gc_info["host_name"] = self.hostname
                     gc_info["ip"] = self.ip
                     gc_info["create_time"] = self.get_time()
+                    if version != 1:
+                        gc_info["MC"] = ''
+                        gc_info["MU"] = ''
                     jvm_infos[i[1]] = gc_info
         data = jvm_infos
         return data
