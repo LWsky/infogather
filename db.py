@@ -7,7 +7,6 @@ import infogather
 import time
 import threading
 import initInformation
-import my_config
 
 
 class DB():
@@ -17,12 +16,20 @@ class DB():
 
     def connect_mysql(self):
         try:
-            config = {'user': my_config.getConfig("mysql","user"),
-                      'password': my_config.getConfig("mysql","password"),
-                      'host': my_config.getConfig("mysql","host"),
-                      'port': my_config.getConfig("mysql","port"),
-                      'database': my_config.getConfig("mysql","database"),
-                      'charset': my_config.getConfig("mysql","charset")}
+            '''
+            config = {'user': 'root',
+                      'password': 'A2017in!!',
+                      'host': '10.1.9.199',
+                      'port': '3306',
+                      'database': 'supervisory_platform',
+                      'charset': 'utf8'}
+            '''
+            config = {'user': 'allin_front',
+                      'password': 'j4EJkmaido6e2',
+                      'host': '10.44.174.118',
+                      'port': '4417',
+                      'database': 'supervisory_platform',
+                      'charset': 'utf8'}
             conn = mysql.connector.connect(**config)
             return conn
         except mysql.connector.Error as e:
