@@ -8,6 +8,8 @@ import psutil
 import types
 import rediscluster
 import sys
+import re
+import my_config
 
 disk_last = None
 net_last = None
@@ -19,15 +21,10 @@ class InfoGather():
         #print self.hostname
         self.ip = socket.gethostbyname(self.hostname)
     def redis_cluster(self):
-        redis_nodes = [{'host': '10.46.185.48', 'port': 7001},
-                       {'host': '10.46.185.48', 'port': 7002},
-                       {'host': '10.46.185.48', 'port': 7003},
-                       {'host': '10.46.185.48', 'port': 7004},
-                       {'host': '10.46.185.48', 'port': 7005},
-                       {'host': '10.46.185.48', 'port': 7006}
-                       ]
+        redis_nodes = my_config.getRedisNodes()
+        password = my_config.getConfig("redisCluster","password")
         try:
-            redisconn = rediscluster.StrictRedisCluster(startup_nodes=redis_nodes,password='jHxG2b9sQiJ3VsoJ')
+            redisconn = rediscluster.StrictRedisCluster(startup_nodes=redis_nodes,password=password)
         except Exception as e:
             print 'redis连接失败，原因', format(e)
             sys.exit(1)
@@ -251,13 +248,15 @@ class InfoGather():
 
     #--------------------net end--------------------
     # --------------------jvm--------------------
-    def get_jvm_gc(self):
+    def get_jvm_gc(self,version):
         jvm_pipe = os.popen("ps -ef|grep java | grep -v grep").readlines()
         jvm_res = [line.strip().split() for line in jvm_pipe]
         jvm_infos = {}
-
         def jvm_info_todict(line):
-            S0C,S1C,S0U,S1U,EC,EU,OC,OU,PC,PU,YGC,YGCT,FGC,FGCT,GCT = line.split()
+            if version != 1:
+                S0C, S1C, S0U, S1U, EC, EU, OC, OU, PC, PU, YGC, YGCT, FGC, FGCT, GCT = line.split()
+            else:
+                S0C, S1C, S0U, S1U, EC, EU, OC, OU, MC, MU, PC, PU, YGC, YGCT, FGC, FGCT, GCT = line.split()
             del line
             d = {k:self.tonum(v) for k,v in locals().items()}
             return d
@@ -286,6 +285,9 @@ class InfoGather():
                     gc_info["host_name"] = self.hostname
                     gc_info["ip"] = self.ip
                     gc_info["create_time"] = self.get_time()
+                    if version != 1:
+                        gc_info["MC"] = ''
+                        gc_info["MU"] = ''
                     jvm_infos[i[1]] = gc_info
         data = jvm_infos
         return data
@@ -296,14 +298,24 @@ class InfoGather():
         redisconn = self.redis_cluster()
         redis_info = redisconn.info()
         redis_infos = {}
+        def get_dbs(strings):
+            r = re.compile(r'db\d')
+            return r.findall(strings)
         for key in redis_info.keys():
             info = {}
-            info['node'] = key
+            db_names = get_dbs(''.join(redis_info[key].keys()))
+            info['node'] = key.split(":")[1]
             info['used_memory'] = redis_info[key]['used_memory']
             info['mem_fragmentation_ratio'] = redis_info[key]['mem_fragmentation_ratio']  # 内存碎片率.内存碎片率超过了1.5，那可能是操作系统或Redis实例中内存管理变差的表现
             info['total_commands_processed'] = redis_info[key]['total_commands_processed']  # Redis服务处理命令的总数
             info['used_cpu_sys'] = redis_info[key]['used_cpu_sys']  # redis server的sys cpu使用率
             info['used_cpu_user'] = redis_info[key]['used_cpu_user']  # redis server的user cpu使用率
+            db_values = []
+            for db in db_names:
+                db_values.append(db+':'+str(redis_info[key][db]['keys']))
+            info['keys_num'] = ''.join(db_values)
+            info['keyspace_hits'] = redis_info[key]['keyspace_hits']    #key命中数
+            info['keyspace_misses'] = redis_info[key]['keyspace_misses']    #key miss数
             info['blocked_clients'] = redis_info[key]['blocked_clients']  # 被阻塞的客户端数
             info['connected_clients'] = redis_info[key]['connected_clients']  # 连接的客户端数
             info['instantaneous_ops_per_sec'] = redis_info[key]['instantaneous_ops_per_sec']  # 每秒执行的命令个数
@@ -326,7 +338,11 @@ if __name__ == '__main__':
     #info.get_disk()
     #a = info.main()
     #print a
+    info.get_jvm_gc(1)
+
+'''
     while True:
         print info.get_cpu()
         print "456"
         time.sleep(1)
+        '''

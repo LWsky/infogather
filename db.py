@@ -6,7 +6,8 @@ import mysql.connector
 import infogather
 import time
 import threading
-import initInformation
+import my_config
+from initInformation import *
 
 
 class DB():
@@ -16,20 +17,12 @@ class DB():
 
     def connect_mysql(self):
         try:
-            '''
-            config = {'user': 'root',
-                      'password': 'A2017in!!',
-                      'host': '10.1.9.199',
-                      'port': '3306',
-                      'database': 'supervisory_platform',
-                      'charset': 'utf8'}
-            '''
-            config = {'user': 'allin_front',
-                      'password': 'j4EJkmaido6e2',
-                      'host': '10.44.174.118',
-                      'port': '4417',
-                      'database': 'supervisory_platform',
-                      'charset': 'utf8'}
+            config = {'user': my_config.getConfig("mysql","user"),
+                      'password': my_config.getConfig("mysql","password"),
+                      'host': my_config.getConfig("mysql","host"),
+                      'port': my_config.getConfig("mysql","port"),
+                      'database': my_config.getConfig("mysql","database"),
+                      'charset': my_config.getConfig("mysql","charset")}
             conn = mysql.connector.connect(**config)
             return conn
         except mysql.connector.Error as e:
@@ -116,12 +109,14 @@ class DB():
 
     def insert_jvm_gc(self,interval=2):
         #cursor = self.conn.cursor()
+        v = check_jkd_version()
+        print v
         while True:
-            jvm_gc_sql = "INSERT INTO jvm_gc (host_name, ip, create_time, PID, name_path, S0C, S1C, S0U, S1U, EC, EU, OC, OU, PC, PU, YGC, YGCT, FGC, FGCT, GCT) " \
-                         "VALUES (%(host_name)s, %(ip)s, %(create_time)s, %(pid)s, %(name_path)s, %(S0C)s, %(S1C)s, %(S0U)s, %(S1U)s, %(EC)s, %(EU)s, %(OC)s, %(OU)s, %(PC)s, %(PU)s, %(YGC)s, %(YGCT)s, %(FGC)s, %(FGCT)s, %(GCT)s)"
+            jvm_gc_sql = "INSERT INTO jvm_gc (host_name, ip, create_time, PID, name_path, S0C, S1C, S0U, S1U, EC, EU, OC, OU, MC, MU, PC, PU, YGC, YGCT, FGC, FGCT, GCT) " \
+                         "VALUES (%(host_name)s, %(ip)s, %(create_time)s, %(pid)s, %(name_path)s, %(S0C)s, %(S1C)s, %(S0U)s, %(S1U)s, %(EC)s, %(EU)s, %(OC)s, %(OU)s, %(MC)s, %(MU)s, %(PC)s, %(PU)s, %(YGC)s, %(YGCT)s, %(FGC)s, %(FGCT)s, %(GCT)s)"
             conn = self.connect_mysql()
             cursor = conn.cursor()
-            data = self.info.get_jvm_gc()
+            data = self.info.get_jvm_gc(v)
             if data:
                 try:
                     for pid in data.keys():
@@ -136,8 +131,8 @@ class DB():
 
     def insert_redis_info(self, interval=2):
         while True:
-            redis_info_sql = "INSERT INTO redis (host_name, ip, node, used_memory, mem_fragmentation_ratio, total_commands_processed, used_cpu_sys, used_cpu_user, blocked_clients, connected_clients, instantaneous_ops_per_sec, create_time) " \
-                         "VALUES (%(host_name)s, %(ip)s, %(node)s, %(used_memory)s, %(mem_fragmentation_ratio)s, %(total_commands_processed)s, %(used_cpu_sys)s, %(used_cpu_user)s, %(blocked_clients)s, %(connected_clients)s, %(instantaneous_ops_per_sec)s, %(create_time)s)"
+            redis_info_sql = "INSERT INTO redis (host_name, ip, node, used_memory, keys_num, keyspace_hits, keyspace_misses, mem_fragmentation_ratio, total_commands_processed, used_cpu_sys, used_cpu_user, blocked_clients, connected_clients, instantaneous_ops_per_sec, create_time) " \
+                         "VALUES (%(host_name)s, %(ip)s, %(node)s, %(used_memory)s, %(keys_num)s, %(keyspace_hits)s, %(keyspace_misses)s, %(mem_fragmentation_ratio)s, %(total_commands_processed)s, %(used_cpu_sys)s, %(used_cpu_user)s, %(blocked_clients)s, %(connected_clients)s, %(instantaneous_ops_per_sec)s, %(create_time)s)"
             conn = self.connect_mysql()
             cursor = conn.cursor()
             data = self.info.get_redis_info()
@@ -147,7 +142,7 @@ class DB():
                         cursor.execute(redis_info_sql, data[node])
                     conn.commit()
                 except mysql.connector.Error as e:
-                    print "insert_jvm_gc commit fails!{}".format(e)
+                    print "insert_redis_info commit fails!{}".format(e)
                 finally:
                     cursor.close()
                     conn.close()
@@ -158,9 +153,11 @@ class DB():
         for func in inspect.getmembers(self,predicate=inspect.ismethod):
             if func[0][:6] == 'insert':
                 all_data[func[0]] = func[1]
-        services_status = initInformation.check_services()
+        services_status = check_services()
         if services_status['redis'] == 0:
             del all_data['insert_redis_info']
+        if services_status['java'] == 0:
+            del all_data['insert_jvm_gc']
         all_func_data = all_data
         return all_func_data
 
