@@ -8,6 +8,7 @@ import psutil
 import types
 import rediscluster
 import sys
+import my_config
 
 disk_last = None
 net_last = None
@@ -19,15 +20,10 @@ class InfoGather():
         #print self.hostname
         self.ip = socket.gethostbyname(self.hostname)
     def redis_cluster(self):
-        redis_nodes = [{'host': '10.46.185.48', 'port': 7001},
-                       {'host': '10.46.185.48', 'port': 7002},
-                       {'host': '10.46.185.48', 'port': 7003},
-                       {'host': '10.46.185.48', 'port': 7004},
-                       {'host': '10.46.185.48', 'port': 7005},
-                       {'host': '10.46.185.48', 'port': 7006}
-                       ]
+        redis_nodes = my_config.getRedisNodes()
+        password = my_config.getConfig("redisCluster","password")
         try:
-            redisconn = rediscluster.StrictRedisCluster(startup_nodes=redis_nodes,password='jHxG2b9sQiJ3VsoJ')
+            redisconn = rediscluster.StrictRedisCluster(startup_nodes=redis_nodes,password=password)
         except Exception as e:
             print 'redis连接失败，原因', format(e)
             sys.exit(1)
