@@ -15,6 +15,7 @@ class DB():
         self.info = infogather.InfoGather()
         self.conf = MyConfig()
         self.saveInfogather_db = "mysql"
+        self.dbnodes = self.conf.getInfogather_db()
     def connect_mysql(self,dbtype):
         try:
             config = {'user': self.conf.getConfig(dbtype,"user"),
@@ -175,7 +176,7 @@ class DB():
             time.sleep(interval)
 
     def insert_mysql_info(self,interval=2):
-        self.dbnodes = self.conf.getInfogather_db()
+
         while True:
             mysql_info_sql = "INSERT INTO mysql (host_name, ip, masterOrslave, InnnoDB_QPS, MyISAM_QPS, TPS, Threads_cached, Threads_running, Threads_connected, thread_cache_hitrate, key_buffer_read_hits, key_buffer_write_hits, query_cache_hits, max_connections, Max_used_connections, innodb_buffer_read_hit_ratio, Innodb_buffer_usage, innodb_buffer_pool_hit_ratio, Created_tmp_tables, Created_tmp_disk_tables, Handler_read_prev, Handler_read_rnd_next, Handler_read_first, Handler_read_key, Handler_read_next, Handler_read_rnd, Handler_read_last, Slow_queries, long_query_time, Table_locks_immediate, Table_locks_waited, create_time) " \
                          "VALUES (%(host_name)s, %(ip)s, %(masterOrslave)s, %(InnnoDB_QPS)s, %(MyISAM_QPS)s, %(TPS)s, %(Threads_cached)s, %(Threads_running)s, %(Threads_connected)s, %(thread_cache_hitrate)s, %(key_buffer_read_hits)s, %(key_buffer_write_hits)s, %(query_cache_hits)s, %(max_connections)s, %(Max_used_connections)s, %(innodb_buffer_read_hit_ratio)s, %(Innodb_buffer_usage)s, %(innodb_buffer_pool_hit_ratio)s, %(Created_tmp_tables)s, %(Created_tmp_disk_tables)s, %(Handler_read_prev)s, %(Handler_read_rnd_next)s, %(Handler_read_first)s, %(Handler_read_key)s, %(Handler_read_next)s, %(Handler_read_rnd)s, %(Handler_read_last)s, %(Slow_queries)s, %(long_query_time)s, %(Table_locks_immediate)s, %(Table_locks_waited)s, %(create_time)s)"

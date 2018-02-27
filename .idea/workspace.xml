@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8d92a0f8-922c-4541-826d-2a82628c13df" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" />
+    <list default="true" id="8d92a0f8-922c-4541-826d-2a82628c13df" name="Default" comment="调整db结构，增加mysql主从性能指标采集逻辑">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config/db.conf" afterPath="$PROJECT_DIR$/config/db.conf" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db.py" afterPath="$PROJECT_DIR$/db.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/infogather.py" afterPath="$PROJECT_DIR$/infogather.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/initInformation.py" afterPath="$PROJECT_DIR$/initInformation.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/my_config.py" afterPath="$PROJECT_DIR$/my_config.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/建表语句.sql" afterPath="$PROJECT_DIR$/建表语句.sql" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -20,7 +15,7 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/infogather$infogather.coverage" NAME="infogather Coverage Results" MODIFIED="1519699045652" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/infogather$db.coverage" NAME="db Coverage Results" MODIFIED="1510304859461" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/infogather$db.coverage" NAME="db Coverage Results" MODIFIED="1519700475308" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/infogather$my_config.coverage" NAME="my_config Coverage Results" MODIFIED="1519616072015" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="CreatePatchCommitExecutor">
@@ -63,17 +58,17 @@
       <file leaf-file-name="db.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/db.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1058">
-              <caret line="198" column="34" lean-forward="false" selection-start-line="198" selection-start-column="34" selection-end-line="198" selection-end-column="34" />
+            <state relative-caret-position="112">
+              <caret line="204" column="0" lean-forward="true" selection-start-line="204" selection-start-column="0" selection-end-line="204" selection-end-column="0" />
               <folding>
                 <element signature="e#42#56#0" expanded="true" />
-                <marker date="1519699136172" expanded="true" signature="1941:2293" ph="INSERT INTO cpu... " />
-                <marker date="1519699136172" expanded="true" signature="2867:3155" ph="INSERT INTO mem... " />
-                <marker date="1519699136172" expanded="true" signature="3731:4075" ph="INSERT INTO disk... " />
-                <marker date="1519699136172" expanded="true" signature="4754:5108" ph="INSERT INTO net... " />
-                <marker date="1519699136172" expanded="true" signature="5838:6229" ph="INSERT INTO jvm_gc... " />
-                <marker date="1519699136172" expanded="true" signature="6893:7473" ph="INSERT INTO redis... " />
-                <marker date="1519699136172" expanded="true" signature="8202:9556" ph="INSERT INTO mysql... " />
+                <marker date="1519700475250" expanded="true" signature="1993:2345" ph="INSERT INTO cpu... " />
+                <marker date="1519700475250" expanded="true" signature="2919:3207" ph="INSERT INTO mem... " />
+                <marker date="1519700475250" expanded="true" signature="3783:4127" ph="INSERT INTO disk... " />
+                <marker date="1519700475250" expanded="true" signature="4806:5160" ph="INSERT INTO net... " />
+                <marker date="1519700475250" expanded="true" signature="5890:6281" ph="INSERT INTO jvm_gc... " />
+                <marker date="1519700475250" expanded="true" signature="6945:7525" ph="INSERT INTO redis... " />
+                <marker date="1519700475250" expanded="true" signature="8203:9557" ph="INSERT INTO mysql... " />
               </folding>
             </state>
           </provider>
@@ -82,8 +77,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="405">
-              <caret line="21" column="32" lean-forward="false" selection-start-line="21" selection-start-column="32" selection-end-line="21" selection-end-column="32" />
+            <state relative-caret-position="234">
+              <caret line="19" column="16" lean-forward="false" selection-start-line="19" selection-start-column="16" selection-end-line="19" selection-end-column="16" />
               <folding>
                 <element signature="e#42#51#0" expanded="true" />
               </folding>
@@ -94,8 +89,8 @@
       <file leaf-file-name="db.conf" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/config/db.conf">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="324">
-              <caret line="12" column="1" lean-forward="false" selection-start-line="12" selection-start-column="1" selection-end-line="12" selection-end-column="1" />
+            <state relative-caret-position="243">
+              <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -224,7 +219,7 @@
     <property name="ChangesBrowser.SHOW_FLATTEN" value="true" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.infogather">
+  <component name="RunManager" selected="Python.db">
     <configuration default="false" name="db" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -500,9 +495,9 @@
     </list>
     <recent_temporary>
       <list size="3">
-        <item index="0" class="java.lang.String" itemvalue="Python.infogather" />
-        <item index="1" class="java.lang.String" itemvalue="Python.my_config" />
-        <item index="2" class="java.lang.String" itemvalue="Python.db" />
+        <item index="0" class="java.lang.String" itemvalue="Python.db" />
+        <item index="1" class="java.lang.String" itemvalue="Python.infogather" />
+        <item index="2" class="java.lang.String" itemvalue="Python.my_config" />
       </list>
     </recent_temporary>
   </component>
@@ -566,20 +561,27 @@
       <option name="project" value="LOCAL" />
       <updated>1519292613449</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="调整db结构，增加mysql主从性能指标采集逻辑">
+      <created>1519699258710</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1519699258710</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="0" />
     <editor active="false" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20735608" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" x="563" y="180" width="287" height="924" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20735608" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" x="563" y="180" width="287" height="924" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32900432" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.30357143" sideWeight="0.50852877" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32924107" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32359308" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2845982" sideWeight="0.4914712" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2845982" sideWeight="0.4914712" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2497309" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -627,7 +629,8 @@
     <MESSAGE value="增加redis指标采集" />
     <MESSAGE value="增加命令行参数解释" />
     <MESSAGE value="config配置db" />
-    <option name="LAST_COMMIT_MESSAGE" value="config配置db" />
+    <MESSAGE value="调整db结构，增加mysql主从性能指标采集逻辑" />
+    <option name="LAST_COMMIT_MESSAGE" value="调整db结构，增加mysql主从性能指标采集逻辑" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -661,13 +664,13 @@
           <caret line="43" column="24" lean-forward="true" selection-start-line="43" selection-start-column="24" selection-end-line="43" selection-end-column="24" />
           <folding>
             <element signature="e#42#56#0" expanded="true" />
-            <marker date="1519699136172" expanded="true" signature="1941:2293" ph="INSERT INTO cpu... " />
-            <marker date="1519699136172" expanded="true" signature="2867:3155" ph="INSERT INTO mem... " />
-            <marker date="1519699136172" expanded="true" signature="3731:4075" ph="INSERT INTO disk... " />
-            <marker date="1519699136172" expanded="true" signature="4754:5108" ph="INSERT INTO net... " />
-            <marker date="1519699136172" expanded="true" signature="5838:6229" ph="INSERT INTO jvm_gc... " />
-            <marker date="1519699136172" expanded="true" signature="6893:7473" ph="INSERT INTO redis... " />
-            <marker date="1519699136172" expanded="true" signature="8202:9556" ph="INSERT INTO mysql... " />
+            <marker date="1519700475250" expanded="true" signature="1993:2345" ph="INSERT INTO cpu... " />
+            <marker date="1519700475250" expanded="true" signature="2919:3207" ph="INSERT INTO mem... " />
+            <marker date="1519700475250" expanded="true" signature="3783:4127" ph="INSERT INTO disk... " />
+            <marker date="1519700475250" expanded="true" signature="4806:5160" ph="INSERT INTO net... " />
+            <marker date="1519700475250" expanded="true" signature="5890:6281" ph="INSERT INTO jvm_gc... " />
+            <marker date="1519700475250" expanded="true" signature="6945:7525" ph="INSERT INTO redis... " />
+            <marker date="1519700475250" expanded="true" signature="8203:9557" ph="INSERT INTO mysql... " />
           </folding>
         </state>
       </provider>
@@ -723,13 +726,13 @@
           <caret line="145" column="44" lean-forward="true" selection-start-line="145" selection-start-column="44" selection-end-line="145" selection-end-column="44" />
           <folding>
             <element signature="e#42#56#0" expanded="true" />
-            <marker date="1519699136172" expanded="true" signature="1941:2293" ph="INSERT INTO cpu... " />
-            <marker date="1519699136172" expanded="true" signature="2867:3155" ph="INSERT INTO mem... " />
-            <marker date="1519699136172" expanded="true" signature="3731:4075" ph="INSERT INTO disk... " />
-            <marker date="1519699136172" expanded="true" signature="4754:5108" ph="INSERT INTO net... " />
-            <marker date="1519699136172" expanded="true" signature="5838:6229" ph="INSERT INTO jvm_gc... " />
-            <marker date="1519699136172" expanded="true" signature="6893:7473" ph="INSERT INTO redis... " />
-            <marker date="1519699136172" expanded="true" signature="8202:9556" ph="INSERT INTO mysql... " />
+            <marker date="1519700475250" expanded="true" signature="1993:2345" ph="INSERT INTO cpu... " />
+            <marker date="1519700475250" expanded="true" signature="2919:3207" ph="INSERT INTO mem... " />
+            <marker date="1519700475250" expanded="true" signature="3783:4127" ph="INSERT INTO disk... " />
+            <marker date="1519700475250" expanded="true" signature="4806:5160" ph="INSERT INTO net... " />
+            <marker date="1519700475250" expanded="true" signature="5890:6281" ph="INSERT INTO jvm_gc... " />
+            <marker date="1519700475250" expanded="true" signature="6945:7525" ph="INSERT INTO redis... " />
+            <marker date="1519700475250" expanded="true" signature="8203:9557" ph="INSERT INTO mysql... " />
           </folding>
         </state>
       </provider>
@@ -769,13 +772,13 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#42#56#0" expanded="true" />
-            <marker date="1519699136172" expanded="true" signature="1941:2293" ph="INSERT INTO cpu... " />
-            <marker date="1519699136172" expanded="true" signature="2867:3155" ph="INSERT INTO mem... " />
-            <marker date="1519699136172" expanded="true" signature="3731:4075" ph="INSERT INTO disk... " />
-            <marker date="1519699136172" expanded="true" signature="4754:5108" ph="INSERT INTO net... " />
-            <marker date="1519699136172" expanded="true" signature="5838:6229" ph="INSERT INTO jvm_gc... " />
-            <marker date="1519699136172" expanded="true" signature="6893:7473" ph="INSERT INTO redis... " />
-            <marker date="1519699136172" expanded="true" signature="8202:9556" ph="INSERT INTO mysql... " />
+            <marker date="1519700475250" expanded="true" signature="1993:2345" ph="INSERT INTO cpu... " />
+            <marker date="1519700475250" expanded="true" signature="2919:3207" ph="INSERT INTO mem... " />
+            <marker date="1519700475250" expanded="true" signature="3783:4127" ph="INSERT INTO disk... " />
+            <marker date="1519700475250" expanded="true" signature="4806:5160" ph="INSERT INTO net... " />
+            <marker date="1519700475250" expanded="true" signature="5890:6281" ph="INSERT INTO jvm_gc... " />
+            <marker date="1519700475250" expanded="true" signature="6945:7525" ph="INSERT INTO redis... " />
+            <marker date="1519700475250" expanded="true" signature="8203:9557" ph="INSERT INTO mysql... " />
           </folding>
         </state>
       </provider>
@@ -807,13 +810,13 @@
           <caret line="119" column="39" lean-forward="false" selection-start-line="119" selection-start-column="39" selection-end-line="119" selection-end-column="39" />
           <folding>
             <element signature="e#42#56#0" expanded="true" />
-            <marker date="1519699136172" expanded="true" signature="1941:2293" ph="INSERT INTO cpu... " />
-            <marker date="1519699136172" expanded="true" signature="2867:3155" ph="INSERT INTO mem... " />
-            <marker date="1519699136172" expanded="true" signature="3731:4075" ph="INSERT INTO disk... " />
-            <marker date="1519699136172" expanded="true" signature="4754:5108" ph="INSERT INTO net... " />
-            <marker date="1519699136172" expanded="true" signature="5838:6229" ph="INSERT INTO jvm_gc... " />
-            <marker date="1519699136172" expanded="true" signature="6893:7473" ph="INSERT INTO redis... " />
-            <marker date="1519699136172" expanded="true" signature="8202:9556" ph="INSERT INTO mysql... " />
+            <marker date="1519700475250" expanded="true" signature="1993:2345" ph="INSERT INTO cpu... " />
+            <marker date="1519700475250" expanded="true" signature="2919:3207" ph="INSERT INTO mem... " />
+            <marker date="1519700475250" expanded="true" signature="3783:4127" ph="INSERT INTO disk... " />
+            <marker date="1519700475250" expanded="true" signature="4806:5160" ph="INSERT INTO net... " />
+            <marker date="1519700475250" expanded="true" signature="5890:6281" ph="INSERT INTO jvm_gc... " />
+            <marker date="1519700475250" expanded="true" signature="6945:7525" ph="INSERT INTO redis... " />
+            <marker date="1519700475250" expanded="true" signature="8203:9557" ph="INSERT INTO mysql... " />
           </folding>
         </state>
       </provider>
@@ -845,13 +848,13 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#42#56#0" expanded="true" />
-            <marker date="1519699136172" expanded="true" signature="1941:2293" ph="INSERT INTO cpu... " />
-            <marker date="1519699136172" expanded="true" signature="2867:3155" ph="INSERT INTO mem... " />
-            <marker date="1519699136172" expanded="true" signature="3731:4075" ph="INSERT INTO disk... " />
-            <marker date="1519699136172" expanded="true" signature="4754:5108" ph="INSERT INTO net... " />
-            <marker date="1519699136172" expanded="true" signature="5838:6229" ph="INSERT INTO jvm_gc... " />
-            <marker date="1519699136172" expanded="true" signature="6893:7473" ph="INSERT INTO redis... " />
-            <marker date="1519699136172" expanded="true" signature="8202:9556" ph="INSERT INTO mysql... " />
+            <marker date="1519700475250" expanded="true" signature="1993:2345" ph="INSERT INTO cpu... " />
+            <marker date="1519700475250" expanded="true" signature="2919:3207" ph="INSERT INTO mem... " />
+            <marker date="1519700475250" expanded="true" signature="3783:4127" ph="INSERT INTO disk... " />
+            <marker date="1519700475250" expanded="true" signature="4806:5160" ph="INSERT INTO net... " />
+            <marker date="1519700475250" expanded="true" signature="5890:6281" ph="INSERT INTO jvm_gc... " />
+            <marker date="1519700475250" expanded="true" signature="6945:7525" ph="INSERT INTO redis... " />
+            <marker date="1519700475250" expanded="true" signature="8203:9557" ph="INSERT INTO mysql... " />
           </folding>
         </state>
       </provider>
@@ -873,13 +876,13 @@
           <caret line="14" column="0" lean-forward="true" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
           <folding>
             <element signature="e#42#56#0" expanded="true" />
-            <marker date="1519699136172" expanded="true" signature="1941:2293" ph="INSERT INTO cpu... " />
-            <marker date="1519699136172" expanded="true" signature="2867:3155" ph="INSERT INTO mem... " />
-            <marker date="1519699136172" expanded="true" signature="3731:4075" ph="INSERT INTO disk... " />
-            <marker date="1519699136172" expanded="true" signature="4754:5108" ph="INSERT INTO net... " />
-            <marker date="1519699136172" expanded="true" signature="5838:6229" ph="INSERT INTO jvm_gc... " />
-            <marker date="1519699136172" expanded="true" signature="6893:7473" ph="INSERT INTO redis... " />
-            <marker date="1519699136172" expanded="true" signature="8202:9556" ph="INSERT INTO mysql... " />
+            <marker date="1519700475250" expanded="true" signature="1993:2345" ph="INSERT INTO cpu... " />
+            <marker date="1519700475250" expanded="true" signature="2919:3207" ph="INSERT INTO mem... " />
+            <marker date="1519700475250" expanded="true" signature="3783:4127" ph="INSERT INTO disk... " />
+            <marker date="1519700475250" expanded="true" signature="4806:5160" ph="INSERT INTO net... " />
+            <marker date="1519700475250" expanded="true" signature="5890:6281" ph="INSERT INTO jvm_gc... " />
+            <marker date="1519700475250" expanded="true" signature="6945:7525" ph="INSERT INTO redis... " />
+            <marker date="1519700475250" expanded="true" signature="8203:9557" ph="INSERT INTO mysql... " />
           </folding>
         </state>
       </provider>
@@ -901,13 +904,13 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#42#56#0" expanded="true" />
-            <marker date="1519699136172" expanded="true" signature="1941:2293" ph="INSERT INTO cpu... " />
-            <marker date="1519699136172" expanded="true" signature="2867:3155" ph="INSERT INTO mem... " />
-            <marker date="1519699136172" expanded="true" signature="3731:4075" ph="INSERT INTO disk... " />
-            <marker date="1519699136172" expanded="true" signature="4754:5108" ph="INSERT INTO net... " />
-            <marker date="1519699136172" expanded="true" signature="5838:6229" ph="INSERT INTO jvm_gc... " />
-            <marker date="1519699136172" expanded="true" signature="6893:7473" ph="INSERT INTO redis... " />
-            <marker date="1519699136172" expanded="true" signature="8202:9556" ph="INSERT INTO mysql... " />
+            <marker date="1519700475250" expanded="true" signature="1993:2345" ph="INSERT INTO cpu... " />
+            <marker date="1519700475250" expanded="true" signature="2919:3207" ph="INSERT INTO mem... " />
+            <marker date="1519700475250" expanded="true" signature="3783:4127" ph="INSERT INTO disk... " />
+            <marker date="1519700475250" expanded="true" signature="4806:5160" ph="INSERT INTO net... " />
+            <marker date="1519700475250" expanded="true" signature="5890:6281" ph="INSERT INTO jvm_gc... " />
+            <marker date="1519700475250" expanded="true" signature="6945:7525" ph="INSERT INTO redis... " />
+            <marker date="1519700475250" expanded="true" signature="8203:9557" ph="INSERT INTO mysql... " />
           </folding>
         </state>
       </provider>
@@ -929,13 +932,13 @@
           <caret line="8" column="0" lean-forward="true" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
           <folding>
             <element signature="e#42#56#0" expanded="true" />
-            <marker date="1519699136172" expanded="true" signature="1941:2293" ph="INSERT INTO cpu... " />
-            <marker date="1519699136172" expanded="true" signature="2867:3155" ph="INSERT INTO mem... " />
-            <marker date="1519699136172" expanded="true" signature="3731:4075" ph="INSERT INTO disk... " />
-            <marker date="1519699136172" expanded="true" signature="4754:5108" ph="INSERT INTO net... " />
-            <marker date="1519699136172" expanded="true" signature="5838:6229" ph="INSERT INTO jvm_gc... " />
-            <marker date="1519699136172" expanded="true" signature="6893:7473" ph="INSERT INTO redis... " />
-            <marker date="1519699136172" expanded="true" signature="8202:9556" ph="INSERT INTO mysql... " />
+            <marker date="1519700475250" expanded="true" signature="1993:2345" ph="INSERT INTO cpu... " />
+            <marker date="1519700475250" expanded="true" signature="2919:3207" ph="INSERT INTO mem... " />
+            <marker date="1519700475250" expanded="true" signature="3783:4127" ph="INSERT INTO disk... " />
+            <marker date="1519700475250" expanded="true" signature="4806:5160" ph="INSERT INTO net... " />
+            <marker date="1519700475250" expanded="true" signature="5890:6281" ph="INSERT INTO jvm_gc... " />
+            <marker date="1519700475250" expanded="true" signature="6945:7525" ph="INSERT INTO redis... " />
+            <marker date="1519700475250" expanded="true" signature="8203:9557" ph="INSERT INTO mysql... " />
           </folding>
         </state>
       </provider>
@@ -1010,16 +1013,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/config/db.conf">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="324">
-          <caret line="12" column="1" lean-forward="false" selection-start-line="12" selection-start-column="1" selection-end-line="12" selection-end-column="1" />
+        <state relative-caret-position="243">
+          <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="21" column="32" lean-forward="false" selection-start-line="21" selection-start-column="32" selection-end-line="21" selection-end-column="32" />
+        <state relative-caret-position="234">
+          <caret line="19" column="16" lean-forward="false" selection-start-line="19" selection-start-column="16" selection-end-line="19" selection-end-column="16" />
           <folding>
             <element signature="e#42#51#0" expanded="true" />
           </folding>
@@ -1028,17 +1031,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/db.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1058">
-          <caret line="198" column="34" lean-forward="false" selection-start-line="198" selection-start-column="34" selection-end-line="198" selection-end-column="34" />
+        <state relative-caret-position="112">
+          <caret line="204" column="0" lean-forward="true" selection-start-line="204" selection-start-column="0" selection-end-line="204" selection-end-column="0" />
           <folding>
             <element signature="e#42#56#0" expanded="true" />
-            <marker date="1519699136172" expanded="true" signature="1941:2293" ph="INSERT INTO cpu... " />
-            <marker date="1519699136172" expanded="true" signature="2867:3155" ph="INSERT INTO mem... " />
-            <marker date="1519699136172" expanded="true" signature="3731:4075" ph="INSERT INTO disk... " />
-            <marker date="1519699136172" expanded="true" signature="4754:5108" ph="INSERT INTO net... " />
-            <marker date="1519699136172" expanded="true" signature="5838:6229" ph="INSERT INTO jvm_gc... " />
-            <marker date="1519699136172" expanded="true" signature="6893:7473" ph="INSERT INTO redis... " />
-            <marker date="1519699136172" expanded="true" signature="8202:9556" ph="INSERT INTO mysql... " />
+            <marker date="1519700475250" expanded="true" signature="1993:2345" ph="INSERT INTO cpu... " />
+            <marker date="1519700475250" expanded="true" signature="2919:3207" ph="INSERT INTO mem... " />
+            <marker date="1519700475250" expanded="true" signature="3783:4127" ph="INSERT INTO disk... " />
+            <marker date="1519700475250" expanded="true" signature="4806:5160" ph="INSERT INTO net... " />
+            <marker date="1519700475250" expanded="true" signature="5890:6281" ph="INSERT INTO jvm_gc... " />
+            <marker date="1519700475250" expanded="true" signature="6945:7525" ph="INSERT INTO redis... " />
+            <marker date="1519700475250" expanded="true" signature="8203:9557" ph="INSERT INTO mysql... " />
           </folding>
         </state>
       </provider>
