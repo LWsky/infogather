@@ -9,7 +9,8 @@ import types
 import rediscluster
 import sys
 import re
-import my_config
+from my_config import MyConfig
+import db
 
 disk_last = None
 net_last = None
@@ -160,7 +161,6 @@ class InfoGather():
             stat['svctm'] = 0
 
         return stat
-
 
     def get_disk_calc_result(self):
         global disk_last
@@ -327,6 +327,125 @@ class InfoGather():
         return data
     # --------------------redis end--------------------
 
+    # --------------------mysql--------------------
+    def get_mysql_info(self,dbnode):
+        s = time.time()
+        mysql_infos = {}
+        mydb = db.DB()
+        #判断主从
+        if "slave" in dbnode:
+            mysql_infos["masterOrslave"] = dbnode[17:]
+        else:
+            mysql_infos["masterOrslave"] = "master"
+        #QPS计算(每秒查询数)
+        questions = mydb.query_date(dbnode,"show GLOBAL status like 'Questions'")["Questions"]
+        uptime_myisam = mydb.query_date(dbnode,"show global status like 'Uptime'")["Uptime"]
+        MyISAM_QPS = round(int(questions)/float(uptime_myisam),2)    #针对MyISAM 引擎为主的DB
+        mysql_infos["MyISAM_QPS"] = MyISAM_QPS
+        com_update = mydb.query_date(dbnode,"show global status like 'Com_update'")["Com_update"]  #执行update操作的次数
+        com_insert = mydb.query_date(dbnode,"show global status like 'Com_insert'")["Com_insert"]  #执行insert操作的次数
+        com_select = mydb.query_date(dbnode,"show global status like 'Com_select'")["Com_select"]  #执行select操作的次数
+        com_delete = mydb.query_date(dbnode,"show global status like 'Com_delete'")["Com_delete"]  #执行delete操作的次数
+        uptime_innodb = mydb.query_date(dbnode,"show global status like 'Uptime'")["Uptime"]
+        InnoDB_QPS = round((int(com_update)+int(com_insert)+int(com_delete)+int(com_select))/float(uptime_innodb),2)
+        mysql_infos["InnnoDB_QPS"] = InnoDB_QPS
+        #TPS计算(每秒事务数)
+        com_commit = mydb.query_date(dbnode,"show global status like 'Com_commit'")["Com_commit"]
+        com_rollback = mydb.query_date(dbnode,"show global status like 'Com_rollback'")["Com_rollback"]
+        uptime_tps = mydb.query_date(dbnode,"show global status like 'Uptime'")["Uptime"]
+        TPS = round((int(com_commit) + int(com_rollback)) / float(uptime_tps),2)
+        mysql_infos["TPS"] = TPS
+        #线程连接数和命中率
+        mydbThreads = mydb.query_date(dbnode,"show global status like 'Threads_%'")
+        #| Threads_cached | 480 | // 代表当前此时此刻线程缓存中有多少空闲线程
+        #| Threads_connected | 153 | // 代表当前已建立连接的数量，因为一个连接就需要一个线程，所以也可以看成当前被使用的线程数
+        #| Threads_created | 20344 | // 代表从最近一次服务启动，已创建线程的数量
+        #| Threads_running | 2 | // 代表当前激活的（非睡眠状态）线程数
+        connections = mydb.query_date(dbnode,"show global status like 'Connections'")["Connections"]
+        thread_cache_hitrate = round(1-int(mydbThreads["Threads_cached"])/float(connections),5) #线程缓存命中率
+        mysql_infos["Threads_cached"] = mydbThreads["Threads_cached"]
+        mysql_infos["Threads_running"] = mydbThreads["Threads_running"]
+        mysql_infos["Threads_connected"] = mydbThreads["Threads_connected"]
+        mysql_infos["thread_cache_hitrate"] = thread_cache_hitrate
+        #key buffer 命中率
+        key = mydb.query_date(dbnode,"show status like 'key%'")
+        key_buffer_read_hits = round(1 - int(key["Key_reads"]) / float(key["Key_read_requests"]),2)
+        if int(key["Key_write_requests"]) != 0:
+            key_buffer_write_hits = round(1 - int(key["Key_writes"]) / float(key["Key_write_requests"]),2)
+        else:
+            key_buffer_write_hits = 0.0
+        mysql_infos["key_buffer_read_hits"] = key_buffer_read_hits
+        mysql_infos["key_buffer_write_hits"] = key_buffer_write_hits
+        # query cache命中率
+        qcache = mydb.query_date(dbnode,"show status like 'Qcache%'")
+        query_cache_hits = round(int(qcache["Qcache_hits"]) / (float(qcache["Qcache_hits"]) + float(com_select)),5)
+        mysql_infos["query_cache_hits"] = query_cache_hits
+        #最大连接数
+        max_connections = mydb.query_date(dbnode,"show variables like 'max_connections'")["max_connections"]
+        max_used_connections = mydb.query_date(dbnode,"show global status like 'Max_used_connections'")["Max_used_connections"]
+        mysql_infos["max_connections"] = max_connections
+        mysql_infos["Max_used_connections"] = max_used_connections
+        #Innodb缓存
+        innodb_buffer = mydb.query_date(dbnode,"show global status like 'innodb_buffer_pool%'")
+        #Innodb_buffer_pool_read_ahead:后端预读线程读取到innodb buffer pool的页的数目。单位是page。
+        #Innodb_buffer_pool_read_ahead_evicted:预读的页数，但是没有被读取就从缓冲池中被替换的页的数量，一般用来判断预读的效率。
+        #innodb_buffer_pool_reads: 平均每秒从物理磁盘读取页的次数
+        #innodb_buffer_pool_read_requests: 平均每秒从innodb缓冲池的读次数（逻辑读请求数）
+        #innodb_buffer_pool_write_requests: 平均每秒向innodb缓冲池的写次数
+        #innodb_buffer_pool_pages_dirty: 平均每秒innodb缓存池中脏页的数目
+        #innodb_buffer_pool_pages_flushed: 平均每秒innodb缓存池中刷新页请求的数目
+        # innodb 缓冲池的读命中率
+        innodb_buffer_read_hit_ratio = round(( 1 - int(innodb_buffer["Innodb_buffer_pool_reads"])/float(innodb_buffer["Innodb_buffer_pool_read_requests"])) * 100,2)
+        #Innodb缓冲池的利用率
+        Innodb_buffer_usage = round((1 - int(innodb_buffer["Innodb_buffer_pool_pages_free"]) / float(innodb_buffer["Innodb_buffer_pool_pages_total"])) * 10,2)
+        #缓冲池命中率
+        innodb_buffer_pool_hit_ratio = round((int(innodb_buffer["Innodb_buffer_pool_read_requests"])) / float(int(innodb_buffer["Innodb_buffer_pool_read_requests"]) + int(innodb_buffer["Innodb_buffer_pool_read_ahead"]) + int(innodb_buffer["Innodb_buffer_pool_reads"])),5)
+        mysql_infos["innodb_buffer_read_hit_ratio"] = innodb_buffer_read_hit_ratio
+        mysql_infos["Innodb_buffer_usage"] = Innodb_buffer_usage
+        mysql_infos["innodb_buffer_pool_hit_ratio"] = innodb_buffer_pool_hit_ratio
+        #临时表使用情况
+        created_tmp = mydb.query_date(dbnode,"show global status like 'Created_tmp%'")
+        #Created_tmp_disk_tables: 服务器执行语句时在硬盘上自动创建的临时表的数量
+        #Created_tmp_tables: 服务器执行语句时自动创建的内存中的临时表的数量
+        #Created_tmp_disk_tables / Created_tmp_tables比值最好不要超过10%，如果Created_tmp_tables值比较大,可能是排序句子过多或者连接句子不够优化
+        mysql_infos["Created_tmp_disk_tables"] = created_tmp["Created_tmp_disk_tables"]
+        mysql_infos["Created_tmp_tables"] = created_tmp["Created_tmp_tables"]
+        #表扫描情况判断
+        handler_read = mydb.query_date(dbnode,"show global status like 'Handler_read%'")
+        #Handler_read_first ：使用索引扫描的次数，该值大小说不清系统性能是好是坏
+        #Handler_read_key ：通过key进行查询的次数，该值越大证明系统性能越好
+        #Handler_read_next ：使用索引进行排序的次数
+        #Handler_read_prev ：此选项表明在进行索引扫描时， 按照索引倒序从数据文件里取数据的次数， 一般就是ORDER BY... DESC
+        #Handler_read_rnd ：该值越大证明系统中有大量的没有使用索引进行排序的操作，或者join时没有使用到index
+        #Handler_read_rnd_next ：使用数据文件进行扫描的次数，该值越大证明有大量的全表扫描，或者合理地创建索引,没有很好地利用已经建立好的索引
+        mysql_infos["Handler_read_first"] = handler_read["Handler_read_first"]
+        mysql_infos["Handler_read_key"] = handler_read["Handler_read_key"]
+        mysql_infos["Handler_read_last"] = handler_read["Handler_read_last"]
+        mysql_infos["Handler_read_next"] = handler_read["Handler_read_next"]
+        mysql_infos["Handler_read_prev"] = handler_read["Handler_read_prev"]
+        mysql_infos["Handler_read_rnd"] = handler_read["Handler_read_rnd"]
+        mysql_infos["Handler_read_rnd_next"] = handler_read["Handler_read_rnd_next"]
+        #慢查询
+        slow_queries = mydb.query_date(dbnode,"show global status like 'Slow_queries'")["Slow_queries"]
+        long_query_time = mydb.query_date(dbnode,"show variables like 'long_query_time'")["long_query_time"]
+        mysql_infos["Slow_queries"] = slow_queries
+        mysql_infos["long_query_time"] = long_query_time
+        e = time.time()
+        #表锁
+        table_lock = mydb.query_date(dbnode,"show global status like 'table_lock%'")
+        # Table_locks_immediate :可以立即授予对表锁请求的次数。
+        #Table_locks_waited:不能立即授予一个表锁请求的次数，需要等待。如果这是高的，并且您有性能问题，您应该首先优化您的查询，然后可以拆分您的表或表或使用复制。
+        #这两个值的比值： Table_locks_waited / Table_locks_immediate趋向于0，如果值比较大则表示系统的锁阻塞情况比较严重
+        mysql_infos["Table_locks_immediate"] = table_lock["Table_locks_immediate"]
+        mysql_infos["Table_locks_waited"] = table_lock["Table_locks_waited"]
+
+        mysql_infos["host_name"] = self.hostname
+        mysql_infos["ip"] = self.ip
+        mysql_infos["create_time"] = self.get_time()
+        data = mysql_infos
+        return data
+    # --------------------mysql end--------------------
+
     def main(self):
         data = dict()
         data["cpu"] = self.get_cpu()
@@ -338,7 +457,11 @@ if __name__ == '__main__':
     #info.get_disk()
     #a = info.main()
     #print a
-    info.get_jvm_gc(1)
+    #info.get_jvm_gc(1)
+    conf = MyConfig()
+    print conf.getInfogather_db()
+    for node in conf.getInfogather_db():
+        print info.get_mysql_info(dbnode=node)
 
 '''
     while True:

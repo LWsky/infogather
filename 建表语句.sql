@@ -112,4 +112,39 @@ CREATE TABLE `redis` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
+CREATE TABLE `mysql` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `host_name` varchar(50) NOT NULL,
+  `ip` varchar(20) NOT NULL,
+  `masterOrslave` varchar(50) NOT NULL,
+  `InnnoDB_QPS` int(11) NOT NULL,
+  `MyISAM_QPS` int(11) NOT NULL,
+  `TPS` int(11) NOT NULL,
+  `Threads_cached` int(11) NOT NULL COMMENT '代表当前此时此刻线程缓存中有多少空闲线程',
+  `Threads_running` int(11) NOT NULL COMMENT '代表当前激活的（非睡眠状态）线程数',
+  `Threads_connected` int(11) NOT NULL COMMENT '代表当前已建立连接的数量，因为一个连接就需要一个线程，所以也可以看成当前被使用的线程数',
+  `thread_cache_hitrate` float(11,2) NOT NULL COMMENT '线程缓存命中率',
+  `key_buffer_read_hits` float(11,2) NOT NULL COMMENT 'key buffer read 命中率',
+  `key_buffer_write_hits` float(11,2) NOT NULL COMMENT 'key buffer write 命中率',
+  `query_cache_hits` float(11,2) NOT NULL COMMENT 'query cache命中率',
+  `max_connections` int(11) NOT NULL COMMENT '最大连接数',
+  `Max_used_connections` int(11) NOT NULL COMMENT '最大使用连接数',
+  `innodb_buffer_read_hit_ratio` float(11,2) NOT NULL COMMENT 'innodb 缓冲池的读命中率',
+  `Innodb_buffer_usage` float(11,2) NOT NULL COMMENT 'Innodb缓冲池的利用率',
+  `innodb_buffer_pool_hit_ratio` float(11,2) NOT NULL COMMENT '缓冲池命中率',
+  `Created_tmp_tables` int(11) NOT NULL COMMENT '服务器执行语句时自动创建的内存中的临时表的数量',
+  `Created_tmp_disk_tables` int(11) NOT NULL COMMENT '服务器执行语句时在硬盘上自动创建的临时表的数量',
+  `Handler_read_prev` int(11) NOT NULL COMMENT '此选项表明在进行索引扫描时， 按照索引倒序从数据文件里取数据的次数， 一般就是ORDER BY... DESC',
+  `Handler_read_rnd_next` int(11) NOT NULL COMMENT '使用数据文件进行扫描的次数，该值越大证明有大量的全表扫描，或者合理地创建索引,没有很好地利用已经建立好的索引',
+  `Handler_read_first` int(11) NOT NULL COMMENT '使用索引扫描的次数，该值大小说不清系统性能是好是坏',
+  `Handler_read_key` int(11) NOT NULL COMMENT '通过key进行查询的次数，该值越大证明系统性能越好',
+  `Handler_read_next` int(11) NOT NULL COMMENT '使用索引进行排序的次数',
+  `Handler_read_rnd` int(11) NOT NULL COMMENT '该值越大证明系统中有大量的没有使用索引进行排序的操作，或者join时没有使用到index',
+  `Handler_read_last` int(11) NOT NULL COMMENT 'The number of requests to read the last key in an index. With ORDER BY, the server will issue a first-key request followed by several next-key requests, whereas with ORDER BY DESC, the server will issue a last-key request followed by several previous-key requests. This variable was added in MySQL 5.6.1.',
+  `Slow_queries` int(11) NOT NULL COMMENT '慢查询总数',
+  `long_query_time` int(11) NOT NULL COMMENT '最长查询时间',
+  `Table_locks_immediate` int(11) NOT NULL COMMENT '可以立即授予对表锁请求的次数',
+  `Table_locks_waited` int(11) NOT NULL COMMENT '不能立即授予一个表锁请求的次数，需要等待。如果这是高的，并且您有性能问题，您应该首先优化您的查询，然后可以拆分您的表或表或使用复制。',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
