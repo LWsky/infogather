@@ -21,8 +21,8 @@ class MyConfig():
         redisPassword = self.getConfig("redisCluster","password")
         redisHosts = redisHost.split(',')
         redisPorts = redisPort.split(',')
-        print redisPassword
-        print redisHosts
+        #print redisPassword
+        #print redisHosts
         RedisNodesList = []
         for host,port in zip(redisHosts,redisPorts):
             dict = {}

@@ -21,10 +21,10 @@ class InfoGather():
         self.hostname = socket.gethostname()
         #print self.hostname
         self.ip = socket.gethostbyname(self.hostname)
+        self.conf = MyConfig()
     def redis_cluster(self):
-        rconf = MyConfig()
-        redis_nodes = rconf.getRedisNodes()
-        password = rconf.getConfig("redisCluster","password")
+        redis_nodes = self.conf.getRedisNodes()
+        password = self.conf.getConfig("redisCluster","password")
         try:
             redisconn = rediscluster.StrictRedisCluster(startup_nodes=redis_nodes,password=password)
         except Exception as e:
@@ -440,8 +440,8 @@ class InfoGather():
         mysql_infos["Table_locks_immediate"] = table_lock["Table_locks_immediate"]
         mysql_infos["Table_locks_waited"] = table_lock["Table_locks_waited"]
 
-        mysql_infos["host_name"] = self.hostname
-        mysql_infos["ip"] = self.ip
+        mysql_infos["host_name"] = ""
+        mysql_infos["ip"] = self.conf.getConfig(dbnode,"host")
         mysql_infos["create_time"] = self.get_time()
         data = mysql_infos
         return data
