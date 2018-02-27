@@ -22,8 +22,9 @@ class InfoGather():
         #print self.hostname
         self.ip = socket.gethostbyname(self.hostname)
     def redis_cluster(self):
-        redis_nodes = my_config.getRedisNodes()
-        password = my_config.getConfig("redisCluster","password")
+        rconf = MyConfig()
+        redis_nodes = rconf.getRedisNodes()
+        password = rconf.getConfig("redisCluster","password")
         try:
             redisconn = rediscluster.StrictRedisCluster(startup_nodes=redis_nodes,password=password)
         except Exception as e:
