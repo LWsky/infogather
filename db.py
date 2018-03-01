@@ -36,9 +36,12 @@ class DB():
         try:
             cursor.execute(sql)
             result = cursor.fetchall()
-            for i in result:
-                data[i[0]] = i[1]
-            return data
+            if len(result[0]) == 2:
+                for i in result:
+                    data[i[0]] = i[1]
+                return data
+            else:
+                return result
         except mysql.connector.Error as e:
             print "query_date fails!{}".format(e)
         finally:
@@ -196,6 +199,8 @@ class DB():
             del all_data['insert_redis_info']
         if services_status['java'] == 0:
             del all_data['insert_jvm_gc']
+        if services_status['mysql'] == 0:
+            del all_data['insert_mysql_info']
         if not self.dbnodes:
             del all_data['insert_mysql_info']
         all_func_data = all_data
