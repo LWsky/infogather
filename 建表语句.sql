@@ -148,3 +148,10 @@ CREATE TABLE `mysql` (
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `server_ip` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `host_name` varchar(100) NOT NULL,
+  `ip` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

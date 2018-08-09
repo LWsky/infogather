@@ -4,9 +4,10 @@
 import os
 import socket,fcntl,struct
 import time
-import psutil
-import types
+#import psutil
+#import types
 import rediscluster
+import redis
 import sys
 import re
 from my_config import MyConfig
@@ -15,12 +16,15 @@ import db
 disk_last = None
 net_last = None
 
+
 class InfoGather():
+
 
     def __init__(self):
         self.hostname = socket.gethostname()
-        #print self.hostname
-        self.ip = socket.gethostbyname(self.hostname)
+        #self.ip = socket.gethostbyname(self.hostname)
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.ip = socket.inet_ntoa(fcntl.ioctl(s.fileno(), 0x8915, struct.pack('256s', 'eth0'[:15]))[20:24])
         self.conf = MyConfig()
     def redis_cluster(self):
         redis_nodes = self.conf.getRedisNodes()
@@ -32,34 +36,59 @@ class InfoGather():
             sys.exit(1)
         return redisconn
 
+    def redis_conn(self):
+        pool = redis.ConnectionPool(host=self.conf.getConfig("redis", "host"), port=self.conf.getConfig("redis", "port"),
+                                    password=self.conf.getConfig("redis", "password"), decode_responses=True)
+        try:
+            redisconn = redis.Redis(connection_pool=pool)
+        except Exception as e:
+            print 'redis连接失败，原因', format(e)
+            sys.exit(1)
+        return redisconn
+
     def get_time(self):
         return time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 
     def get_cpu(self):
-
-        cpu_pipe = os.popen('top -bi -n 2 -d 3').read().split('\n\n\n')[0].split('top - ')[2].split('\n')[2]
         cpu_rb_pipe = os.popen("vmstat 1 2").readlines()
-        #print cpu_rb_pipe
         cpu_rb_res = [line.strip("\n").split() for line in cpu_rb_pipe][-1]
-        #print cpu_rb_res
-        cpu_res = cpu_pipe[8:].split()
-        if len(cpu_res[5]) != 3:
-            temp1 = cpu_res[5].split(",")
-            temp2 = cpu_res[:5]
-            temp3 = cpu_res[6:]
-            cpu_res = temp2 + temp1 + temp3
-        r_cpu = int(cpu_rb_res[0])
-        b_cpu = int(cpu_rb_res[1])
-        in_cpu = int(cpu_rb_res[-7])
-        cs_cpu = int(cpu_rb_res[-6])
-        user_cpu = float(cpu_res[0])
-        hi_cpu = float(cpu_res[10])
-        system_cpu = float(cpu_res[2])
-        wa_cpu = float(cpu_res[8])
-        si_cpu = float(cpu_res[12])
-        idle_cpu = float(cpu_res[6])
-        create_time = self.get_time()
-        usage_cpu = float(100.0 - idle_cpu)
+        change_sys = os.popen('top -bi -n 2 -d 3').read().split('\n\n\n')
+        if len(change_sys) != 2:
+            cpu_pipe = os.popen('top -bi -n 2 -d 3').read().split('\n\n\n')[0].split('top - ')[2].split('\n')[2]
+            cpu_res = cpu_pipe[8:].split()
+            if len(cpu_res[5]) != 3:
+                temp1 = cpu_res[5].split(",")
+                temp2 = cpu_res[:5]
+                temp3 = cpu_res[6:]
+                cpu_res = temp2 + temp1 + temp3
+            r_cpu = int(cpu_rb_res[0])
+            b_cpu = int(cpu_rb_res[1])
+            in_cpu = int(cpu_rb_res[-7])
+            cs_cpu = int(cpu_rb_res[-6])
+            user_cpu = float(cpu_res[0])
+            hi_cpu = float(cpu_res[10])
+            system_cpu = float(cpu_res[2])
+            wa_cpu = float(cpu_res[8])
+            si_cpu = float(cpu_res[12])
+            idle_cpu = float(cpu_res[6])
+            create_time = self.get_time()
+            usage_cpu = float(100.0 - idle_cpu)
+        else:
+            cpu_pipe = os.popen('top -bi -n 2 -d 3').read().split('\n\n\n')[1].split('\n')[2]
+            cpu_res = cpu_pipe[8:].split(',')
+            cpu_res = [i.strip()[:-3] for i in cpu_res]
+            r_cpu = int(cpu_rb_res[0])
+            b_cpu = int(cpu_rb_res[1])
+            in_cpu = int(cpu_rb_res[-7])
+            cs_cpu = int(cpu_rb_res[-6])
+            user_cpu = float(cpu_res[0])
+            hi_cpu = float(cpu_res[5])
+            system_cpu = float(cpu_res[1])
+            wa_cpu = float(cpu_res[4])
+            si_cpu = float(cpu_res[6])
+            idle_cpu = float(cpu_res[3])
+            create_time = self.get_time()
+            usage_cpu = float(100.0 - idle_cpu)
         load_avg = float(os.getloadavg()[0])
         cpu_usage_data = {
             'host_name':self.hostname,
@@ -82,7 +111,6 @@ class InfoGather():
         data = cpu_usage_data
         return data
 
-    # --------------------men--------------------
     def get_mem(self):
         mem_pipe = os.popen("free -m").readlines()
         mem_res = [line.strip("\n").split() for line in mem_pipe]
@@ -113,6 +141,7 @@ class InfoGather():
         }
         data = mem_usage_data
         return data
+    # --------------------men--------------------
     # --------------------men end--------------------
     #--------------------disk--------------------
     def tonum(self,n):
@@ -188,8 +217,6 @@ class InfoGather():
         #print data
         return data
 
-    # --------------------disk end--------------------
-    #--------------------net--------------------
     def net_io_pipe(self):
         def netline_to_dict(line):
             # print line[1:]
@@ -204,6 +231,8 @@ class InfoGather():
         net_io_info = {name["adapter_name"]: name for name in net_io_info}
 
         return net_io_info
+    # --------------------disk end--------------------
+    #--------------------net--------------------
 
     def net_io_calc(self,last, curr):
         def diff(field):
@@ -247,8 +276,6 @@ class InfoGather():
         #print data
         return data
 
-    #--------------------net end--------------------
-    # --------------------jvm--------------------
     def get_jvm_gc(self,version):
         jvm_pipe = os.popen("ps -ef|grep java | grep -v grep").readlines()
         jvm_res = [line.strip().split() for line in jvm_pipe]
@@ -292,11 +319,16 @@ class InfoGather():
                     jvm_infos[i[1]] = gc_info
         data = jvm_infos
         return data
+    #--------------------net end--------------------
+    # --------------------jvm--------------------
 
     # --------------------jvm end--------------------
     # --------------------redis--------------------
     def get_redis_info(self):
-        redisconn = self.redis_cluster()
+        if self.conf.getRedisType() == 1:
+            redisconn = self.redis_cluster()
+        else:
+            redisconn = self.redis_conn()
         redis_info = redisconn.info()
         redis_infos = {}
         def get_dbs(strings):

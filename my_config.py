@@ -4,6 +4,7 @@
 import ConfigParser
 import os
 
+
 class MyConfig():
     def __init__(self):
         self.config = ConfigParser.ConfigParser()
@@ -31,6 +32,8 @@ class MyConfig():
             RedisNodesList.append(dict)
         return RedisNodesList
 
+    def getRedisType(self):
+        return self.getConfig("redis_type", "type")
+
     def getInfogather_db(self):
         return [node for node in self.getAllSection() if node[:16] == "infogather_mysql"]
-
