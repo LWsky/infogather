@@ -325,38 +325,59 @@ class InfoGather():
     # --------------------jvm end--------------------
     # --------------------redis--------------------
     def get_redis_info(self):
+        redis_infos = {}
         if self.conf.getRedisType() == 1:
             redisconn = self.redis_cluster()
-        else:
-            redisconn = self.redis_conn()
-        redis_info = redisconn.info()
-        redis_infos = {}
-        def get_dbs(strings):
-            r = re.compile(r'db\d')
-            return r.findall(strings)
-        for key in redis_info.keys():
-            info = {}
-            db_names = get_dbs(''.join(redis_info[key].keys()))
-            info['node'] = key.split(":")[1]
-            info['used_memory'] = redis_info[key]['used_memory']
-            info['mem_fragmentation_ratio'] = redis_info[key]['mem_fragmentation_ratio']  # 内存碎片率.内存碎片率超过了1.5，那可能是操作系统或Redis实例中内存管理变差的表现
-            info['total_commands_processed'] = redis_info[key]['total_commands_processed']  # Redis服务处理命令的总数
-            info['used_cpu_sys'] = redis_info[key]['used_cpu_sys']  # redis server的sys cpu使用率
-            info['used_cpu_user'] = redis_info[key]['used_cpu_user']  # redis server的user cpu使用率
-            db_values = []
-            for db in db_names:
-                db_values.append(db+':'+str(redis_info[key][db]['keys']))
-            info['keys_num'] = ''.join(db_values)
-            info['keyspace_hits'] = redis_info[key]['keyspace_hits']    #key命中数
-            info['keyspace_misses'] = redis_info[key]['keyspace_misses']    #key miss数
-            info['blocked_clients'] = redis_info[key]['blocked_clients']  # 被阻塞的客户端数
-            info['connected_clients'] = redis_info[key]['connected_clients']  # 连接的客户端数
-            info['instantaneous_ops_per_sec'] = redis_info[key]['instantaneous_ops_per_sec']  # 每秒执行的命令个数
-            info["host_name"] = self.hostname
-            info["ip"] = self.ip
-            info["create_time"] = self.get_time()
-            redis_infos[key] = info
+            redis_info = redisconn.info()
+            def get_dbs(strings):
+                r = re.compile(r'db\d')
+                return r.findall(strings)
+            for key in redis_info.keys():
+                info = {}
+                db_names = get_dbs(''.join(redis_info[key].keys()))
+                info['node'] = key.split(":")[1]
+                info['used_memory'] = redis_info['used_memory']
+                info['mem_fragmentation_ratio'] = redis_info['mem_fragmentation_ratio']  # 内存碎片率.内存碎片率超过了1.5，那可能是操作系统或Redis实例中内存管理变差的表现
+                info['total_commands_processed'] = redis_info['total_commands_processed']  # Redis服务处理命令的总数
+                info['used_cpu_sys'] = redis_info['used_cpu_sys']  # redis server的sys cpu使用率
+                info['used_cpu_user'] = redis_info['used_cpu_user']  # redis server的user cpu使用率
+                db_values = []
+                for db in db_names:
+                    db_values.append(db+':'+str(redis_info[key][db]['keys']))
+                info['keys_num'] = ''.join(db_values)
+                info['keyspace_hits'] = redis_info[key]['keyspace_hits']    #key命中数
+                info['keyspace_misses'] = redis_info[key]['keyspace_misses']    #key miss数
+                info['blocked_clients'] = redis_info[key]['blocked_clients']  # 被阻塞的客户端数
+                info['connected_clients'] = redis_info[key]['connected_clients']  # 连接的客户端数
+                info['instantaneous_ops_per_sec'] = redis_info[key]['instantaneous_ops_per_sec']  # 每秒执行的命令个数
+                info["host_name"] = self.hostname
+                info["ip"] = self.ip
+                info["create_time"] = self.get_time()
+                redis_infos[key] = info
+            else:
+                redisconn = self.redis_conn()
+                redis_info = redisconn.info()
+                info = {}
+                info['node'] = "单节点"
+                #info['node'] = key.split(":")[1]
+                info['used_memory'] = redis_info['used_memory']
+                info['mem_fragmentation_ratio'] = redis_info['mem_fragmentation_ratio']  # 内存碎片率.内存碎片率超过了1.5，那可能是操作系统或Redis实例中内存管理变差的表现
+                info['total_commands_processed'] = redis_info['total_commands_processed']  # Redis服务处理命令的总数
+                info['used_cpu_sys'] = redis_info['used_cpu_sys']  # redis server的sys cpu使用率
+                info['used_cpu_user'] = redis_info['used_cpu_user']  # redis server的user cpu使用率
+                #db_values = []
+                #info['keys_num'] = ''
+                info['keyspace_hits'] = redis_info['keyspace_hits']  # key命中数
+                info['keyspace_misses'] = redis_info['keyspace_misses']  # key miss数
+                info['blocked_clients'] = redis_info['blocked_clients']  # 被阻塞的客户端数
+                info['connected_clients'] = redis_info['connected_clients']  # 连接的客户端数
+                info['instantaneous_ops_per_sec'] = redis_info['instantaneous_ops_per_sec']  # 每秒执行的命令个数
+                info["host_name"] = self.hostname
+                info["ip"] = self.ip
+                info["create_time"] = self.get_time()
+                redis_infos[1] = info
         data = redis_infos
+        print data
         return data
     # --------------------redis end--------------------
 
